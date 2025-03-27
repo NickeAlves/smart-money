@@ -101,4 +101,24 @@ public class User {
     public void setExpenses(List<Expenses> expenses) {
         this.expenses = expenses;
     }
+
+    public String getUsername() {
+        return this.email;
+    }
+
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    public boolean isEnabled() {
+        return true;
+    }
 }
