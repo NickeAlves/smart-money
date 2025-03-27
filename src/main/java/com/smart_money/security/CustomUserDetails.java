@@ -3,6 +3,7 @@ package com.smart_money.security;
 import com.smart_money.model.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
 import java.util.Collection;
 import java.util.Collections;
 

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "expenses")
 public class Expenses {
@@ -31,6 +33,14 @@ public class Expenses {
         this.description = description;
         this.value = value;
         this.user = user;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getTitle() {
