@@ -9,10 +9,7 @@ import com.smart_money.security.TokenService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -65,5 +62,19 @@ public class AuthController {
 
         String token = tokenService.generateToken(user);
         return ResponseEntity.ok(new ResponseDTO(true, token, "Login successfully!"));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ResponseDTO> logout(@RequestHeader(name = "Authorization", required = false) String token) {
+        if (token == null || !token.startsWith("Bearer ")) {
+            return ResponseEntity.status(400).body(new ResponseDTO(false, null, "Invalid token format"));
+        }
+
+        String authToken = token.substring(7);
+
+        if (tokenService.validateToken(authToken) == null) {
+            return ResponseEntity.status(401).body(new ResponseDTO(false, null, "Invalid token or expired"));
+        }
+        return ResponseEntity.ok(new ResponseDTO(true, null, "Logged out successfully."));
     }
 }
