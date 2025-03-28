@@ -10,6 +10,13 @@
 
 **Smart Money** is your wallet's best friend, where you can control your expenses, earnings, and plan financially for the trip of your dreams or that long-awaited goal.
 
+---
+## 🏛️ Architecture
+
+![img.png](img.png)
+
+🔗 link: https://app.eraser.io/workspace/fc3yBK3uDL0Wc3oIpNts?origin=share 
+
 ----
 ## Backend ⚙️
  
