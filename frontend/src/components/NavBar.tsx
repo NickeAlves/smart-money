@@ -5,7 +5,7 @@ import { Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import "./../styles/globals.css";
 
-const NavLinks = () => {
+const NavLinks = ({ mobile = false }: { mobile?: boolean }) => {
   const pathname = usePathname();
 
   return (
@@ -14,7 +14,7 @@ const NavLinks = () => {
         href="/"
         className={`font-sans p-2 relative overflow-hidden group ${
           pathname === "/" ? "text-white" : "text-white"
-        }`}
+        } ${mobile ? "w-full text-center" : ""}`}
       >
         Home
         <span
@@ -27,7 +27,7 @@ const NavLinks = () => {
         href="#about"
         className={`font-sans p-2 relative overflow-hidden group ${
           pathname === "#about" ? "text-white" : "text-white"
-        }`}
+        } ${mobile ? "w-full text-center" : ""}`}
       >
         About me
         <span
@@ -40,7 +40,7 @@ const NavLinks = () => {
         href="#projects"
         className={`font-sans p-2 relative overflow-hidden group ${
           pathname === "#projects" ? "text-white" : "text-white"
-        }`}
+        } ${mobile ? "w-full text-center" : ""}`}
       >
         Projects
         <span
@@ -51,7 +51,9 @@ const NavLinks = () => {
       </Link>
       <button
         type="button"
-        className="text-white bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+        className={`text-white bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center justify-center ${
+          mobile ? "w-full" : ""
+        }`}
       >
         Exit
         <svg
@@ -95,8 +97,19 @@ export default function NavBar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isOpen && !(event.target as Element).closest(".navbar-container")) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
+
   return (
-    <>
+    <div className="navbar-container">
       <nav
         className={`w-full fixed top-0 left-0 z-50 shadow-lg transition-colors duration-300 ${
           isScrolled
@@ -109,7 +122,7 @@ export default function NavBar() {
             <img
               src="/smart-money-removebg-preview.svg"
               alt="Smart Money Logo"
-              className="h-24  invert"
+              className="h-16 md:h-20 invert"
             />
           </Link>
 
@@ -118,20 +131,26 @@ export default function NavBar() {
           </div>
 
           <div className="md:hidden">
-            <button onClick={toggleNavBar} className="text-white">
+            <button
+              onClick={toggleNavBar}
+              className="text-white p-2 focus:outline-none"
+              aria-label="Toggle menu"
+            >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
         </div>
+      </nav>
 
-        {isOpen && (
-          <div className="md:hidden bg-[var(--custom-color)] w-full absolute top-20 left-0 p-4 shadow-lg">
+      {isOpen && (
+        <div className="md:hidden fixed top-16 left-0 right-0 z-40 bg-gray-800 shadow-lg transition-all duration-300">
+          <div className="container mx-auto px-6 py-4">
             <div className="flex flex-col items-center gap-4">
-              <NavLinks />
+              <NavLinks mobile />
             </div>
           </div>
-        )}
-      </nav>
-    </>
+        </div>
+      )}
+    </div>
   );
 }
