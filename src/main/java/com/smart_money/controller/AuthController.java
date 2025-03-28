@@ -6,10 +6,15 @@ import com.smart_money.dto.request.RegisterUserDTO;
 import com.smart_money.model.User;
 import com.smart_money.repository.UserRepository;
 import com.smart_money.security.TokenService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
 
@@ -47,7 +52,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ResponseDTO> login (@Valid @RequestBody LoginUserDTO body) {
+    public ResponseEntity<ResponseDTO> login (@Valid @RequestBody LoginUserDTO body, HttpServletResponse response) {
         Optional<User> optionalUser = userRepository.findUserByEmail(body.email());
 
         if (optionalUser.isEmpty()) {
@@ -61,20 +66,28 @@ public class AuthController {
         }
 
         String token = tokenService.generateToken(user);
+
+        Cookie cookie = new Cookie("token", token);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(3600);
+
+        response.addCookie(cookie);
+        response.setHeader("Set-Cookie", "token=" + token + "; HttpOnly; Secure; Path=/; Max-Age=3600; SameSite=Strict");
+
         return ResponseEntity.ok(new ResponseDTO(true, token, "Login successfully!"));
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ResponseDTO> logout(@RequestHeader(name = "Authorization", required = false) String token) {
-        if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.status(400).body(new ResponseDTO(false, null, "Invalid token format"));
-        }
+    public ResponseEntity<ResponseDTO> logout(HttpServletResponse response) {
+        Cookie cookie = new Cookie("token", null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
 
-        String authToken = token.substring(7);
-
-        if (tokenService.validateToken(authToken) == null) {
-            return ResponseEntity.status(401).body(new ResponseDTO(false, null, "Invalid token or expired"));
-        }
         return ResponseEntity.ok(new ResponseDTO(true, null, "Logged out successfully."));
     }
 }
