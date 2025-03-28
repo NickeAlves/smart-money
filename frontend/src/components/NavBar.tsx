@@ -1,9 +1,10 @@
 "use client";
+
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, X, LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
-import api from "@/utils/java-api";
+import { useAuth } from "@/context/AuthContext";
 import "./../styles/globals.css";
 
 const NavLinks = ({
@@ -65,7 +66,7 @@ const NavLinks = ({
           mobile ? "w-full" : ""
         } ${isLoggingOut ? "opacity-50 cursor-not-allowed" : ""}`}
       >
-        {isLoggingOut ? "Saindo..." : "Sair"}
+        {isLoggingOut ? "Exiting..." : "Exit"}
         {!isLoggingOut && <LogOut className="w-4 h-4 ml-2" />}
       </button>
     </>
@@ -77,21 +78,18 @@ export default function NavBar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
+  const { logout } = useAuth();
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
-      await api.logout();
+      await logout();
       router.push("/login");
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
       setIsLoggingOut(false);
     }
-  };
-
-  const toggleNavBar = () => {
-    setIsOpen(!isOpen);
   };
 
   useEffect(() => {
@@ -138,7 +136,7 @@ export default function NavBar() {
 
           <div className="md:hidden">
             <button
-              onClick={toggleNavBar}
+              onClick={() => setIsOpen(!isOpen)}
               className="text-white p-2 focus:outline-none"
               aria-label="Toggle menu"
             >

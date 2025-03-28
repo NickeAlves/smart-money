@@ -7,6 +7,7 @@ import Head from "next/head";
 import Link from "next/link";
 import "./../styles/globals.css";
 import api from "@/utils/java-api";
+import { useAuth } from "@/context/AuthContext";
 
 interface RegisterFormData {
   firstName: string;
@@ -30,9 +31,10 @@ const RegisterPage: NextPage = () => {
     password: "",
     confirmPassword: "",
   });
-  const [errorMessage, setErrorMessage] = useState<string>("");
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+  const { login } = useAuth();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -54,12 +56,10 @@ const RegisterPage: NextPage = () => {
       }
 
       const currentYear = new Date().getFullYear();
+      const userYear = parseInt(formData.year);
 
-      if (formData.year) {
-        const userYear = parseInt(formData.year);
-        if (currentYear - userYear < 13) {
-          throw new Error("You must be at least 13 years old to register");
-        }
+      if (currentYear - userYear < 13) {
+        throw new Error("You must be at least 13 years old to register");
       }
 
       const userData = {
@@ -67,11 +67,15 @@ const RegisterPage: NextPage = () => {
         lastName: formData.lastName,
         email: formData.email,
         password: formData.password,
-        age: currentYear - parseInt(formData.year),
+        age: currentYear - userYear,
       };
 
-      await api.register(userData);
-      router.push("/");
+      const response = await api.register(userData);
+
+      if (response.token) {
+        login(response.token);
+        router.push("/");
+      }
     } catch (error) {
       const err = error as Error;
       setErrorMessage(err.message || "Registration failed. Please try again.");
@@ -84,6 +88,7 @@ const RegisterPage: NextPage = () => {
     <>
       <Head>
         <title>Register | Smart Money</title>
+        <meta name="Smart Money" content="Create your Smart Money account" />
         <link rel="icon" href="/rounded-logo.png" />
       </Head>
 
@@ -94,6 +99,7 @@ const RegisterPage: NextPage = () => {
               src="/smart-money-removebg-preview.svg"
               alt="Smart Money Logo"
               className="w-52 h-auto invert"
+              loading="lazy"
             />
           </div>
 
@@ -108,7 +114,7 @@ const RegisterPage: NextPage = () => {
           )}
 
           <div className="bg-gray-800 p-6 rounded-lg shadow-lg shadow-gray-950">
-            <form className="space-y-4" onSubmit={handleSubmit}>
+            <form className="space-y-4" onSubmit={handleSubmit} noValidate>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label
@@ -127,6 +133,7 @@ const RegisterPage: NextPage = () => {
                     className="w-full px-3 py-2 text-sm bg-gray-700 text-gray-100 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
                   />
                 </div>
+
                 <div>
                   <label
                     htmlFor="lastName"
@@ -164,73 +171,60 @@ const RegisterPage: NextPage = () => {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Date of Birth
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  <select
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label
+                    htmlFor="day"
+                    className="block text-sm font-medium text-gray-300 mb-1"
+                  >
+                    Day
+                  </label>
+                  <input
+                    id="day"
                     name="day"
+                    type="number"
+                    required
                     value={formData.day}
                     onChange={handleChange}
-                    className="bg-gray-700 text-gray-100 border border-gray-600 rounded-md px-3 py-2 text-sm focus:ring-indigo-400 focus:border-indigo-400"
-                    required
+                    className="w-full px-3 py-2 text-sm bg-gray-700 text-gray-100 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="month"
+                    className="block text-sm font-medium text-gray-300 mb-1"
                   >
-                    <option value="">Day</option>
-                    {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
-                      <option key={day} value={day}>
-                        {day}
-                      </option>
-                    ))}
-                  </select>
-                  <select
+                    Month
+                  </label>
+                  <input
+                    id="month"
                     name="month"
+                    type="number"
+                    required
                     value={formData.month}
                     onChange={handleChange}
-                    className="bg-gray-700 text-gray-100 border border-gray-600 rounded-md px-3 py-2 text-sm focus:ring-indigo-400 focus:border-indigo-400"
-                    required
+                    className="w-full px-3 py-2 text-sm bg-gray-700 text-gray-100 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="year"
+                    className="block text-sm font-medium text-gray-300 mb-1"
                   >
-                    <option value="">Month</option>
-                    {[
-                      "January",
-                      "February",
-                      "March",
-                      "April",
-                      "May",
-                      "June",
-                      "July",
-                      "August",
-                      "September",
-                      "October",
-                      "November",
-                      "December",
-                    ].map((month, index) => (
-                      <option key={month} value={index + 1}>
-                        {month}
-                      </option>
-                    ))}
-                  </select>
-                  <select
+                    Year
+                  </label>
+                  <input
+                    id="year"
                     name="year"
+                    type="number"
+                    required
                     value={formData.year}
                     onChange={handleChange}
-                    className="bg-gray-700 text-gray-100 border border-gray-600 rounded-md px-3 py-2 text-sm focus:ring-indigo-400 focus:border-indigo-400"
-                    required
-                  >
-                    <option value="">Year</option>
-                    {Array.from(
-                      { length: 100 },
-                      (_, i) => new Date().getFullYear() - 13 - i
-                    ).map((year) => (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    ))}
-                  </select>
+                    className="w-full px-3 py-2 text-sm bg-gray-700 text-gray-100 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  />
                 </div>
-                <p className="text-xs text-gray-400 mt-1">
-                  You must be at least 13 years old to register
-                </p>
               </div>
 
               <div>
@@ -250,9 +244,6 @@ const RegisterPage: NextPage = () => {
                   onChange={handleChange}
                   className="w-full px-3 py-2 text-sm bg-gray-700 text-gray-100 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
                 />
-                <p className="text-xs text-gray-400 mt-1">
-                  Minimum 8 characters
-                </p>
               </div>
 
               <div>
@@ -276,7 +267,7 @@ const RegisterPage: NextPage = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`w-full py-2.5 mt-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400 focus:ring-offset-gray-800 ${
+                className={`w-full py-2 sm:py-2.5 mt-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400 focus:ring-offset-gray-800 ${
                   isSubmitting
                     ? "bg-indigo-400 cursor-not-allowed"
                     : "bg-indigo-600 hover:bg-indigo-500"
@@ -285,13 +276,13 @@ const RegisterPage: NextPage = () => {
                 {isSubmitting ? "Registering..." : "Register"}
               </button>
 
-              <p className="text-center text-sm text-gray-400 mt-4">
+              <p className="text-center text-sm text-gray-400 mt-3">
                 Already have an account?{" "}
                 <Link
                   href="/login"
                   className="font-medium text-indigo-400 hover:text-indigo-300 hover:underline"
                 >
-                  Sign In
+                  Sign in
                 </Link>
               </p>
             </form>

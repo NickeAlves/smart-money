@@ -1,5 +1,3 @@
-"use client";
-
 import { NextPage } from "next";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -7,6 +5,7 @@ import Head from "next/head";
 import Link from "next/link";
 import "./../styles/globals.css";
 import api from "@/utils/java-api";
+import { useAuth } from "@/context/AuthContext";
 
 interface LoginCredentials {
   email: string;
@@ -14,11 +13,22 @@ interface LoginCredentials {
 }
 
 const LoginPage: NextPage = () => {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [errorMessage, setErrorMessage] = useState<string>("");
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [credentials, setCredentials] = useState<LoginCredentials>({
+    email: "",
+    password: "",
+  });
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { login } = useAuth();
   const router = useRouter();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCredentials((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,18 +36,21 @@ const LoginPage: NextPage = () => {
     setErrorMessage("");
 
     try {
-      const credentials: LoginCredentials = { email, password };
       const response = await api.login(credentials);
 
-      if (response.token) {
-        localStorage.setItem("token", response.token);
-        router.push("/");
-      } else {
-        throw new Error("Authentication failed");
+      if (!response?.token) {
+        throw new Error("Authentication failed: No token received");
       }
+
+      login(response.token);
+      router.push("/");
     } catch (error) {
-      const err = error as Error;
-      setErrorMessage(err.message || "Login failed. Please try again.");
+      console.error("Login error:", error);
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Login failed. Please try again."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -47,6 +60,10 @@ const LoginPage: NextPage = () => {
     <>
       <Head>
         <title>Login | Smart Money</title>
+        <meta
+          name="description"
+          content="Sign in to your Smart Money account"
+        />
         <link rel="icon" href="/rounded-logo.png" />
       </Head>
 
@@ -57,6 +74,7 @@ const LoginPage: NextPage = () => {
               src="/smart-money-removebg-preview.svg"
               alt="Smart Money Logo"
               className="w-40 sm:w-52 h-auto invert"
+              loading="lazy"
             />
           </div>
 
@@ -71,7 +89,11 @@ const LoginPage: NextPage = () => {
           )}
 
           <div className="bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg shadow-gray-950">
-            <form className="space-y-3 sm:space-y-4" onSubmit={handleSubmit}>
+            <form
+              className="space-y-3 sm:space-y-4"
+              onSubmit={handleSubmit}
+              noValidate
+            >
               <div>
                 <label
                   htmlFor="email"
@@ -81,11 +103,14 @@ const LoginPage: NextPage = () => {
                 </label>
                 <input
                   id="email"
+                  name="email"
                   type="email"
+                  autoComplete="email"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={credentials.email}
+                  onChange={handleChange}
                   className="w-full px-3 py-2 text-xs sm:text-sm bg-gray-700 text-gray-100 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  disabled={isSubmitting}
                 />
               </div>
 
@@ -98,21 +123,25 @@ const LoginPage: NextPage = () => {
                 </label>
                 <input
                   id="password"
+                  name="password"
                   type="password"
+                  autoComplete="current-password"
                   required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  minLength={8}
+                  value={credentials.password}
+                  onChange={handleChange}
                   className="w-full px-3 py-2 text-xs sm:text-sm bg-gray-700 text-gray-100 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  disabled={isSubmitting}
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`w-full py-2 sm:py-2.5 mt-2 text-xs sm:text-sm font-medium text-white rounded-md hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400 focus:ring-offset-gray-800 ${
+                className={`w-full py-2 sm:py-2.5 mt-2 text-xs sm:text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400 focus:ring-offset-gray-800 ${
                   isSubmitting
                     ? "bg-indigo-400 cursor-not-allowed"
-                    : "bg-indigo-600"
+                    : "bg-indigo-600 hover:bg-indigo-500"
                 }`}
               >
                 {isSubmitting ? "Logging in..." : "Login"}

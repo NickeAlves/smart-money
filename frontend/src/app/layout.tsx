@@ -1,24 +1,24 @@
 import type { Metadata } from "next";
+import { AuthProvider } from "@/context/AuthContext";
 import "./../styles/globals.css";
-import Header from "@/components/Header";
 
 export const metadata: Metadata = {
   title: "Smart Money",
+  description: "Sistema financeiro inteligente",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="rounded-logo.png" />
+        <link rel="icon" href="/rounded-logo.png" />
       </head>
-      <body>
-        <Header />
-        {children}
+      <body className="bg-gray-900 text-white">
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
