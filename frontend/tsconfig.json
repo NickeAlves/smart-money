@@ -27,7 +27,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "src/helpers/java-api.js"
+    "src/utils/java-api.js"
   ],
   "exclude": ["node_modules"]
 }
