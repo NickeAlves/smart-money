@@ -63,13 +63,77 @@ const RegisterPage: NextPage = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Date of Birth
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  <select
+                    className="bg-gray-700 text-gray-100 border border-gray-600 rounded-md px-3 py-2 text-sm focus:ring-indigo-400 focus:border-indigo-400"
+                    required
+                  >
+                    <option value="">Day</option>
+                    {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
+                      <option key={day} value={day}>
+                        {day}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    className="bg-gray-700 text-gray-100 border border-gray-600 rounded-md px-3 py-2 text-sm focus:ring-indigo-400 focus:border-indigo-400"
+                    required
+                  >
+                    <option value="">Month</option>
+                    {[
+                      "January",
+                      "February",
+                      "March",
+                      "April",
+                      "May",
+                      "June",
+                      "July",
+                      "August",
+                      "September",
+                      "October",
+                      "November",
+                      "December",
+                    ].map((month, index) => (
+                      <option key={month} value={index + 1}>
+                        {month}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    className="bg-gray-700 text-gray-100 border border-gray-600 rounded-md px-3 py-2 text-sm focus:ring-indigo-400 focus:border-indigo-400"
+                    required
+                  >
+                    <option value="">Year</option>
+                    {Array.from(
+                      { length: 100 },
+                      (_, i) => new Date().getFullYear() - 13 - i
+                    ).map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <p className="text-xs text-gray-400 mt-1">
+                  You must be at least 13 years old to register
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
                   Password
                 </label>
                 <input
                   type="password"
                   required
+                  minLength={8}
                   className="w-full px-3 py-2 text-sm bg-gray-700 text-gray-100 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
                 />
+                <p className="text-xs text-gray-400 mt-1">
+                  Minimum 8 characters
+                </p>
               </div>
 
               <div>
