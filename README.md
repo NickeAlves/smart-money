@@ -18,20 +18,20 @@
 🔗 link: https://app.eraser.io/workspace/fc3yBK3uDL0Wc3oIpNts?origin=share 
 
 ----
-## Backend ⚙️
+## ⚙️ Backend 
  
  - **Languages:** Java
  - **Frameworks:** Spring Boot
  - **Database:** PostgreSQL 
 ---
-## Frontend 💻
+## 💻 Frontend 
 
 - **Languages:** JavaScript, TypeScript
 - **Frameworks:** React, Next.js, Tailwind Css
 - **Markup and Styling:** HTML, CSS.
 
 ---
-## License 📜
+## 📜 License 
 
 All rights reserved [Nicolas Alves©](https://www.linkedin.com/in/nicolasdevback)
 
