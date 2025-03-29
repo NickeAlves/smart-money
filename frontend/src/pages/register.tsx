@@ -92,13 +92,13 @@ const RegisterPage: NextPage = () => {
         <link rel="icon" href="/rounded-logo.png" />
       </Head>
 
-      <div className="min-h-screen bg-gray-900 flex flex-col justify-center pb-6">
-        <div className="w-full max-w-md mx-auto">
+      <div className="min-h-screen bg-gray-900 flex justify-center p-4 md:items-center">
+        <div className="w-full max-w-md space-y-6 mt-4 md:mt-0">
           <div className="flex justify-center">
             <img
               src="/smart-money-removebg-preview.svg"
               alt="Smart Money Logo"
-              className="w-52 h-auto invert"
+              className="w-32 h-auto invert"
               loading="lazy"
             />
           </div>
@@ -267,7 +267,7 @@ const RegisterPage: NextPage = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`w-full py-2 sm:py-2.5 mt-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400 focus:ring-offset-gray-800 ${
+                className={`w-full py-2.5 mt-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400 focus:ring-offset-gray-800 ${
                   isSubmitting
                     ? "bg-indigo-400 cursor-not-allowed"
                     : "bg-indigo-600 hover:bg-indigo-500"

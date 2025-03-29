@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Menu, X, LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import "./../styles/globals.css";
 
 const NavLinks = ({
@@ -16,59 +17,70 @@ const NavLinks = ({
   onLogout: () => Promise<void>;
   isLoggingOut: boolean;
 }) => {
-  const pathname = usePathname();
-
   return (
     <>
       <Link
         href="/"
-        className={`font-sans p-2 relative overflow-hidden group ${
-          pathname === "/" ? "text-white" : "text-white"
-        } ${mobile ? "w-full text-center" : ""}`}
+        className={`font-sans p-2 relative overflow-hidden group text-white ${
+          mobile ? "w-full text-center" : ""
+        }`}
       >
         Home
-        <span
-          className={`absolute left-0 bottom-0 h-0.5 bg-white transition-all duration-300 ${
-            pathname === "/" ? "w-full" : "w-0 group-hover:w-full"
-          }`}
-        ></span>
+        <span className="absolute left-0 bottom-0 h-0.5 bg-white transition-all duration-300 w-0 group-hover:w-full"></span>
       </Link>
       <Link
         href="#about"
-        className={`font-sans p-2 relative overflow-hidden group ${
-          pathname === "#about" ? "text-white" : "text-white"
-        } ${mobile ? "w-full text-center" : ""}`}
+        className={`font-sans p-2 relative overflow-hidden group text-white ${
+          mobile ? "w-full text-center" : ""
+        }`}
       >
         About me
-        <span
-          className={`absolute left-0 bottom-0 h-0.5 bg-white transition-all duration-300 ${
-            pathname === "#about" ? "w-full" : "w-0 group-hover:w-full"
-          }`}
-        ></span>
+        <span className="absolute left-0 bottom-0 h-0.5 bg-white transition-all duration-300 w-0 group-hover:w-full"></span>
       </Link>
       <Link
         href="#projects"
-        className={`font-sans p-2 relative overflow-hidden group ${
-          pathname === "#projects" ? "text-white" : "text-white"
-        } ${mobile ? "w-full text-center" : ""}`}
+        className={`font-sans p-2 relative overflow-hidden group text-white ${
+          mobile ? "w-full text-center" : ""
+        }`}
       >
         Projects
-        <span
-          className={`absolute left-0 bottom-0 h-0.5 bg-white transition-all duration-300 ${
-            pathname === "#projects" ? "w-full" : "w-0 group-hover:w-full"
-          }`}
-        ></span>
+        <span className="absolute left-0 bottom-0 h-0.5 bg-white transition-all duration-300 w-0 group-hover:w-full"></span>
       </Link>
-      <button
-        onClick={onLogout}
-        disabled={isLoggingOut}
-        className={`text-white bg-red-500 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center justify-center ${
-          mobile ? "w-full" : ""
-        } ${isLoggingOut ? "opacity-50 cursor-not-allowed" : ""}`}
-      >
-        {isLoggingOut ? "Exiting..." : "Exit"}
-        {!isLoggingOut && <LogOut className="w-4 h-4 ml-2" />}
-      </button>
+
+      <Popover className="relative justify-center">
+        <PopoverButton className="inline-flex items-center">
+          <img
+            src="profile-user-svgrepo-com.svg"
+            alt="profile-picture"
+            className="h-8 md:h-8 invert rounded-full hover:scale-110 transition-transform"
+          />
+        </PopoverButton>
+
+        <PopoverPanel className="absolute right-0 z-10 mt-3 w-40 bg-gray-700 shadow-lg rounded-lg">
+          <div className="p-2 text-white">
+            <Link
+              href="/profile"
+              className="block px-4 py-2 hover:bg-gray-800 rounded"
+            >
+              Your Profile
+            </Link>
+            <Link
+              href="/settings"
+              className="block px-4 py-2 hover:bg-gray-800 rounded"
+            >
+              Settings
+            </Link>
+            <button
+              onClick={onLogout}
+              disabled={isLoggingOut}
+              className="w-full flex items-center justify-start gap-2 px-4 py-2 text-red-600 hover:bg-gray-800 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <LogOut size={16} />
+              {isLoggingOut ? "Exiting..." : "Sign out"}
+            </button>
+          </div>
+        </PopoverPanel>
+      </Popover>
     </>
   );
 };

@@ -67,37 +67,32 @@ const LoginPage: NextPage = () => {
         <link rel="icon" href="/rounded-logo.png" />
       </Head>
 
-      <div className="min-h-screen bg-gray-900 flex flex-col justify-center p-4 sm:p-6">
-        <div className="w-full max-w-xs sm:max-w-sm mx-auto">
-          <div className="flex justify-center mb-4 sm:mb-6">
+      <div className="min-h-screen bg-gray-900 flex justify-center p-4 md:items-center">
+        <div className="w-full max-w-md space-y-6 mt-8 md:mt-0">
+          <div className="flex justify-center">
             <img
               src="/smart-money-removebg-preview.svg"
               alt="Smart Money Logo"
-              className="w-40 sm:w-52 h-auto invert"
+              className="w-32 h-auto invert"
               loading="lazy"
             />
           </div>
+          <div className="bg-gray-800 p-6 rounded-lg shadow-lg shadow-gray-950">
+            <h2 className="text-center text-2xl font-bold text-gray-100 mb-6">
+              Sign in to your account
+            </h2>
 
-          <h2 className="text-center text-xl sm:text-2xl font-bold text-gray-100 mb-4 sm:mb-6">
-            Sign in to your account
-          </h2>
+            {errorMessage && (
+              <div className="mb-4 p-3 text-sm text-red-500 bg-red-500/10 rounded-md">
+                {errorMessage}
+              </div>
+            )}
 
-          {errorMessage && (
-            <div className="mb-4 p-3 text-sm text-red-500 bg-red-500/10 rounded-md">
-              {errorMessage}
-            </div>
-          )}
-
-          <div className="bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg shadow-gray-950">
-            <form
-              className="space-y-3 sm:space-y-4"
-              onSubmit={handleSubmit}
-              noValidate
-            >
+            <form className="space-y-4" onSubmit={handleSubmit} noValidate>
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-xs sm:text-sm font-medium text-gray-300 mb-1"
+                  className="block text-sm font-medium text-gray-300 mb-1"
                 >
                   Email
                 </label>
@@ -109,7 +104,7 @@ const LoginPage: NextPage = () => {
                   required
                   value={credentials.email}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 text-xs sm:text-sm bg-gray-700 text-gray-100 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  className="w-full px-3 py-2 text-sm bg-gray-700 text-gray-100 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
                   disabled={isSubmitting}
                 />
               </div>
@@ -117,7 +112,7 @@ const LoginPage: NextPage = () => {
               <div>
                 <label
                   htmlFor="password"
-                  className="block text-xs sm:text-sm font-medium text-gray-300 mb-1"
+                  className="block text-sm font-medium text-gray-300 mb-1"
                 >
                   Password
                 </label>
@@ -130,7 +125,7 @@ const LoginPage: NextPage = () => {
                   minLength={8}
                   value={credentials.password}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 text-xs sm:text-sm bg-gray-700 text-gray-100 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  className="w-full px-3 py-2 text-sm bg-gray-700 text-gray-100 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
                   disabled={isSubmitting}
                 />
               </div>
@@ -138,7 +133,7 @@ const LoginPage: NextPage = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`w-full py-2 sm:py-2.5 mt-2 text-xs sm:text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400 focus:ring-offset-gray-800 ${
+                className={`w-full py-2.5 mt-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400 focus:ring-offset-gray-800 ${
                   isSubmitting
                     ? "bg-indigo-400 cursor-not-allowed"
                     : "bg-indigo-600 hover:bg-indigo-500"
@@ -147,7 +142,7 @@ const LoginPage: NextPage = () => {
                 {isSubmitting ? "Logging in..." : "Login"}
               </button>
 
-              <p className="text-center text-xs sm:text-sm text-gray-400 mt-3 sm:mt-4">
+              <p className="text-center text-sm text-gray-400 mt-4">
                 Don&apos;t have an account?{" "}
                 <Link
                   href="/register"
