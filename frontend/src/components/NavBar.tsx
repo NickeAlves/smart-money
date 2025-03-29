@@ -133,7 +133,7 @@ export default function NavBar() {
             : "bg-[var(--custom-color)]"
         }`}
       >
-        <div className="container mx-auto flex justify-between items-center p-4 px-6 md:px-12">
+        <div className="container mx-auto flex justify-between items-center p-2 px-4 md:px-12">
           <Link href="/">
             <img
               src="/smart-money-removebg-preview.svg"
