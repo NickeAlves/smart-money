@@ -28,6 +28,14 @@ const api = {
     return handleResponse(response);
   },
 
+  async getCurrentUser() {
+    const response = await fetch(`${API_BASE_URL}/users/me`, {
+      method: "GET",
+      headers: getHeaders(),
+    });
+    return handleResponse(response);
+  },
+
   async getUserById(id) {
     const response = await fetch(`${API_BASE_URL}/users/${id}`, {
       headers: getHeaders(false),

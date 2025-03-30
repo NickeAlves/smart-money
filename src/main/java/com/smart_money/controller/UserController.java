@@ -1,5 +1,6 @@
 package com.smart_money.controller;
 
+import com.smart_money.dto.reponse.CurrentUserDTO;
 import com.smart_money.dto.reponse.ResponseDTO;
 import com.smart_money.dto.request.UpdateUserDTO;
 import com.smart_money.model.User;
@@ -31,7 +32,7 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<User> getUserData(HttpServletRequest request) {
+    public ResponseEntity<CurrentUserDTO> getCurrentUser(HttpServletRequest request) {
         String token = Arrays.stream(request.getCookies())
                 .filter(cookie -> "token".equals(cookie.getName()))
                 .findFirst()
@@ -54,9 +55,20 @@ public class UserController {
         }
 
         Optional<User> optionalUser = userService.findUserByEmail(userEmail);
-        return optionalUser
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(401).build());
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(401).build();
+        }
+
+        User user = optionalUser.get();
+        CurrentUserDTO userDTO = new CurrentUserDTO(
+                user.getName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getAge(),
+                user.getProfileUrl()
+        );
+
+        return ResponseEntity.ok(userDTO);
     }
 
     @GetMapping("/{id}")
