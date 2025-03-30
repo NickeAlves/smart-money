@@ -1,5 +1,4 @@
 import Head from "next/head";
-import Header from "@/components/Header";
 import "./../styles/globals.css";
 
 export default function Profile() {
@@ -13,22 +12,25 @@ export default function Profile() {
         />
         <link rel="icon" href="/rounded-logo.png" />
       </Head>
-      <Header />
-      <div className="min-h-screen bg-gray-900 flex flex-col justify-center p-4 md:items-center gap-6">
-        <h1 className="font-bold">Profile</h1>
-        <img
-          src="nicolas-profile.jpeg"
-          alt="profile"
-          className="rounded-full h-12 w-12 shadow-2xl"
-        />
-        <div className="bg-gray-700 shadow-2xl rounded-lg max-w-screen-xl max-h-screen-xl justify-center flex items-center flex-row-2">
-          <div>
-            <h1 className="font-extrabold">Name</h1>
-            <p>Rodrigues, Nicolas</p>
-            <h1 className="font-extrabold">Email</h1>
-            <p>nicolas@gmail.com</p>
-            <h1 className="font-extrabold">Birthday</h1>
-            <p>06/07/2002</p>
+      <div className="min-h-screen bg-gray-900 flex flex-col justify-center md:items-center ">
+        <div className="rounded-xl border border-white bg-white/80 p-6 shadow-lg shadow-black">
+          <div className="flex flex-col justify-center items-center">
+            <div className="pb-6">
+              <img
+                src="nicolas-profile.jpeg"
+                alt="profile"
+                className="h-56 w-56 rounded-lg object-cover object-center shadow-2xl shadow-black"
+              />
+            </div>
+            <p className="font-bold text-gray-600">
+              Rodrigues, Nicolas <br /> <br />
+            </p>
+            <p className="font-bold text-gray-600">
+              nicolas@gmail.com <br /> <br />
+            </p>
+            <p className="font-bold text-gray-600">
+              06/07/2002 <br /> <br />
+            </p>
           </div>
         </div>
       </div>

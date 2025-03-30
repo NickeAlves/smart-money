@@ -32,18 +32,21 @@ public class User {
     @Positive
     private Integer age;
 
+    private String profileUrl;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Expenses> expenses;
 
     public User() {
     }
 
-    public User(String name, String lastName, String email, String password, Integer age) {
+    public User(String name, String lastName, String email, String password, Integer age, String profileUrl) {
         this.name = name;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
         this.age = age;
+        this.profileUrl = profileUrl;
     }
 
     public Long getId() {
@@ -92,6 +95,14 @@ public class User {
 
     public void setAge(Integer age) {
         this.age = age;
+    }
+
+    public String getProfileUrl() {
+        return profileUrl;
+    }
+
+    public void setProfileUrl(String profileUrl) {
+        this.profileUrl = profileUrl;
     }
 
     public List<Expenses> getExpenses() {

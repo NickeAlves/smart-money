@@ -2,11 +2,31 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Menu, X, LogOut } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import "./../styles/globals.css";
+import {
+  UserCircleIcon,
+  Cog6ToothIcon,
+  PowerIcon,
+} from "@heroicons/react/24/solid";
+
+const profileMenuItems = [
+  {
+    label: "My Profile",
+    icon: UserCircleIcon,
+  },
+  {
+    label: "Settings",
+    icon: Cog6ToothIcon,
+  },
+  {
+    label: "Sign Out",
+    icon: PowerIcon,
+  },
+];
 
 const NavLinks = ({
   mobile = false,
@@ -56,28 +76,31 @@ const NavLinks = ({
           />
         </PopoverButton>
 
-        <PopoverPanel className="absolute right-0 z-10 mt-3 w-40 bg-gray-700 shadow-lg rounded-lg">
+        <PopoverPanel className="absolute right-0 z-10 mt-3 w-40 bg-gray-700 shadow-lg shadow-black rounded-lg">
           <div className="p-2 text-white">
-            <Link
-              href="/profile"
-              className="block px-4 py-2 hover:bg-gray-800 rounded"
-            >
-              Your Profile
-            </Link>
-            <Link
-              href="/settings"
-              className="block px-4 py-2 hover:bg-gray-800 rounded"
-            >
-              Settings
-            </Link>
-            <button
-              onClick={onLogout}
-              disabled={isLoggingOut}
-              className="w-full flex items-center justify-start gap-2 px-4 py-2 text-red-600 hover:bg-gray-800 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <LogOut size={16} />
-              {isLoggingOut ? "Exiting..." : "Sign out"}
-            </button>
+            {profileMenuItems.map((item, index) => {
+              const Icon = item.icon;
+              return item.label === "Sign Out" ? (
+                <button
+                  key={index}
+                  onClick={onLogout}
+                  disabled={isLoggingOut}
+                  className="w-full flex items-center justify-start gap-2 px-4 py-2 text-red-600 hover:bg-gray-800 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Icon className="h-4 w-4" />
+                  {isLoggingOut ? "Exiting..." : item.label}
+                </button>
+              ) : (
+                <Link
+                  key={index}
+                  href={`/${item.label.toLowerCase().replace("my ", "")}`}
+                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-800 rounded"
+                >
+                  <Icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              );
+            })}
           </div>
         </PopoverPanel>
       </Popover>
@@ -127,7 +150,7 @@ export default function NavBar() {
   return (
     <div className="navbar-container">
       <nav
-        className={`w-full fixed top-0 left-0 z-50 shadow-lg transition-colors duration-300 ${
+        className={`w-full fixed top-0 left-0 z-50 shadow-md shadow-black transition-colors duration-300 ${
           isScrolled
             ? "bg-gray-800 backdrop-blur-sm"
             : "bg-[var(--custom-color)]"
@@ -159,7 +182,7 @@ export default function NavBar() {
       </nav>
 
       {isOpen && (
-        <div className="md:hidden fixed top-16 left-0 right-0 z-40 bg-gray-800 shadow-lg transition-all duration-300">
+        <div className="md:hidden fixed top-16 left-0 right-0 z-40 shadow-lg shadow-black transition-all duration-300">
           <div className="container mx-auto px-6 py-4">
             <div className="flex flex-col items-center gap-4">
               <NavLinks
