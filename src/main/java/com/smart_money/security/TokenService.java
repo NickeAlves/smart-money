@@ -19,19 +19,18 @@ public class TokenService {
     public String generateToken(User user) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secretKey);
-            String token = JWT.create()
+            return JWT.create()
                     .withIssuer("smart-money")
                     .withSubject(user.getEmail())
                     .withExpiresAt(this.generateExpirationDate())
                     .sign(algorithm);
-            return token;
-        } catch (JWTVerificationException exception) {
-            throw new RuntimeException("Error while authenticating");
+        } catch (Exception exception) {
+            throw new RuntimeException("Error while generating token", exception);
         }
     }
 
     public String validateToken(String token) {
-        try{
+        try {
             Algorithm algorithm = Algorithm.HMAC256(secretKey);
             return JWT.require(algorithm)
                     .withIssuer("smart-money")
@@ -44,7 +43,6 @@ public class TokenService {
     }
 
     private Instant generateExpirationDate() {
-        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
+        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.UTC);
     }
-
 }

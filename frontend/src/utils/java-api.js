@@ -3,6 +3,13 @@ const API_BASE_URL = "http://localhost:8080";
 const getHeaders = (isJson = true) => {
   const headers = {};
 
+  const token = localStorage.getItem("token"); // Pegando o token do localStorage
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`; // Adicionando o token no cabeçalho
+  } else {
+    console.error("Nenhum token encontrado!");
+  }
+
   if (isJson) {
     headers["Content-Type"] = "application/json";
   }
@@ -30,8 +37,8 @@ const api = {
 
   async getCurrentUser() {
     const response = await fetch(`${API_BASE_URL}/users/me`, {
-      method: "GET",
       headers: getHeaders(),
+      credentials: "include",
     });
     return handleResponse(response);
   },
