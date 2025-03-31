@@ -39,6 +39,7 @@ public class UserService {
             if (updateUserDTO.email() != null) existingUser.setEmail(updateUserDTO.email());
             if (updateUserDTO.password() != null) existingUser.setPassword(updateUserDTO.password());
             if (updateUserDTO.age() != null) existingUser.setAge(updateUserDTO.age());
+            if (updateUserDTO.profileUrl() != null) existingUser.setProfileUrl(updateUserDTO.profileUrl());
             return userRepository.save(existingUser);
         });
     }

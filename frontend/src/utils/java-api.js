@@ -54,6 +54,19 @@ const api = {
     return handleResponse(response);
   },
 
+  async uploadProfilePicture(id, file) {
+    const formData = new FormData();
+    formData.append("profileImage", file);
+
+    const response = await fetch(`${API_BASE_URL}/users/${id}/upload-profile`, {
+      method: "PUT",
+      body: formData,
+      credentials: "include",
+    });
+
+    return handleResponse(response);
+  },
+
   async deleteUser(id) {
     const response = await fetch(`${API_BASE_URL}/users/${id}`, {
       method: "DELETE",

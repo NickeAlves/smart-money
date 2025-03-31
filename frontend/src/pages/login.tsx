@@ -43,7 +43,7 @@ const LoginPage: NextPage = () => {
 
     try {
       await api.login(credentials);
-      login(); // Sem argumento, agora deve funcionar com o AuthContext ajustado
+      login();
       setSuccessMessage(true);
       setTimeout(() => router.push("/"), 2000);
     } catch (error) {

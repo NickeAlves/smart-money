@@ -56,7 +56,8 @@ public class SecurityConfig {
                                 "/auth/login",
                                 "/auth/logout",
                                 "/swagger-ui/**",
-                                "/v3/api-docs/**"
+                                "/v3/api-docs/**",
+                                "/uploads/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
@@ -64,5 +65,4 @@ public class SecurityConfig {
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
-
 }
