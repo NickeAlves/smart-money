@@ -6,12 +6,12 @@ import com.smart_money.dto.request.UpdateUserDTO;
 import com.smart_money.model.User;
 import com.smart_money.security.TokenService;
 import com.smart_money.service.UserService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,28 +32,13 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<CurrentUserDTO> getCurrentUser(HttpServletRequest request) {
-        String token = Arrays.stream(request.getCookies())
-                .filter(cookie -> "token".equals(cookie.getName()))
-                .findFirst()
-                .map(Cookie::getValue)
-                .orElse(null);
-
-        if (token == null) {
+    public ResponseEntity<CurrentUserDTO> getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(401).build();
         }
 
-        String userEmail;
-        try {
-            userEmail = tokenService.validateToken(token);
-        } catch (Exception e) {
-            return ResponseEntity.status(401).build();
-        }
-
-        if (userEmail == null) {
-            return ResponseEntity.status(401).build();
-        }
-
+        String userEmail = authentication.getName();
         Optional<User> optionalUser = userService.findUserByEmail(userEmail);
         if (optionalUser.isEmpty()) {
             return ResponseEntity.status(401).build();
@@ -89,16 +74,15 @@ public class UserController {
         Optional<User> updatedUser = userService.updateUser(id, updateUserDTO);
 
         return updatedUser
-                .map(user -> ResponseEntity.ok(new ResponseDTO<>(true, user, "User update successfully.")))
+                .map(user -> ResponseEntity.ok(new ResponseDTO<>(true, user, "User updated successfully.")))
                 .orElse(ResponseEntity.status(500).body(new ResponseDTO(false, null, "Failed to update user.")));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<ResponseDTO> deleteUser(@PathVariable Long id) {
         if (userService.deleteUser(id)) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(new ResponseDTO(true, null, "User deleted successfully."));
         }
-        return ResponseEntity.status(404).build();
+        return ResponseEntity.status(404).body(new ResponseDTO(false, null, "User not found."));
     }
-
 }

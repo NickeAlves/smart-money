@@ -8,14 +8,18 @@ import Link from "next/link";
 import "./../styles/globals.css";
 import api from "@/utils/java-api";
 import { useAuth } from "@/context/AuthContext";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import TextField from "@mui/material/TextField";
+import Alert from "@mui/material/Alert";
+import CheckIcon from "@mui/icons-material/Check";
 
 interface RegisterFormData {
   firstName: string;
   lastName: string;
   email: string;
-  day: string;
-  month: string;
-  year: string;
+  dateOfBirth: Date;
   password: string;
   confirmPassword: string;
 }
@@ -25,13 +29,12 @@ const RegisterPage: NextPage = () => {
     firstName: "",
     lastName: "",
     email: "",
-    day: "",
-    month: "",
-    year: "",
+    dateOfBirth: new Date(),
     password: "",
     confirmPassword: "",
   });
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const { login } = useAuth();
@@ -46,9 +49,25 @@ const RegisterPage: NextPage = () => {
     }));
   };
 
+  const handleDateChange = (date: Date | null) => {
+    if (date) {
+      setFormData((prev) => ({
+        ...prev,
+        dateOfBirth: date,
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        dateOfBirth: new Date(),
+      }));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrorMessage("");
+    setSuccessMessage(false);
 
     try {
       if (formData.password !== formData.confirmPassword) {
@@ -56,7 +75,7 @@ const RegisterPage: NextPage = () => {
       }
 
       const currentYear = new Date().getFullYear();
-      const userYear = parseInt(formData.year);
+      const userYear = formData.dateOfBirth.getFullYear();
 
       if (currentYear - userYear < 13) {
         throw new Error("You must be at least 13 years old to register");
@@ -70,12 +89,10 @@ const RegisterPage: NextPage = () => {
         age: currentYear - userYear,
       };
 
-      const response = await api.register(userData);
-
-      if (response.token) {
-        login(response.token);
-        router.push("/");
-      }
+      await api.register(userData);
+      login();
+      setSuccessMessage(true);
+      setTimeout(() => router.push("/"), 2000);
     } catch (error) {
       const err = error as Error;
       setErrorMessage(err.message || "Registration failed. Please try again.");
@@ -111,6 +128,16 @@ const RegisterPage: NextPage = () => {
             <div className="mb-4 p-3 text-sm text-red-500 bg-red-500/10 rounded-md">
               {errorMessage}
             </div>
+          )}
+
+          {successMessage && (
+            <Alert
+              icon={<CheckIcon fontSize="inherit" />}
+              severity="success"
+              sx={{ mb: 2 }}
+            >
+              Registration successful! Redirecting to homepage...
+            </Alert>
           )}
 
           <div className="bg-gray-800 p-6 rounded-lg shadow-lg shadow-gray-950">
@@ -171,60 +198,47 @@ const RegisterPage: NextPage = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label
-                    htmlFor="day"
-                    className="block text-sm font-medium text-gray-300 mb-1"
-                  >
-                    Day
-                  </label>
-                  <input
-                    id="day"
-                    name="day"
-                    type="number"
-                    required
-                    value={formData.day}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 text-sm bg-gray-700 text-gray-100 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              <div>
+                <label
+                  htmlFor="dateOfBirth"
+                  className="block text-sm font-medium text-gray-300 mb-1"
+                >
+                  Date of Birth
+                </label>
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <DatePicker
+                    value={formData.dateOfBirth}
+                    onChange={handleDateChange}
+                    slots={{
+                      textField: TextField,
+                    }}
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        sx: {
+                          "& .MuiInputBase-root": {
+                            backgroundColor: "#374151",
+                            color: "#D1D5DB",
+                            borderRadius: "6px",
+                          },
+                          "& .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "#4B5563",
+                          },
+                          "&:hover .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "#6366F1",
+                          },
+                          "& .Mui-focused .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "#6366F1",
+                          },
+                          "& .MuiInputBase-input": {
+                            padding: "8px 12px",
+                            fontSize: "0.875rem",
+                          },
+                        },
+                      },
+                    }}
                   />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="month"
-                    className="block text-sm font-medium text-gray-300 mb-1"
-                  >
-                    Month
-                  </label>
-                  <input
-                    id="month"
-                    name="month"
-                    type="number"
-                    required
-                    value={formData.month}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 text-sm bg-gray-700 text-gray-100 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="year"
-                    className="block text-sm font-medium text-gray-300 mb-1"
-                  >
-                    Year
-                  </label>
-                  <input
-                    id="year"
-                    name="year"
-                    type="number"
-                    required
-                    value={formData.year}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 text-sm bg-gray-700 text-gray-100 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                  />
-                </div>
+                </LocalizationProvider>
               </div>
 
               <div>

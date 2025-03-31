@@ -1,3 +1,5 @@
+"use client";
+
 import { NextPage } from "next";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -6,6 +8,8 @@ import Link from "next/link";
 import "./../styles/globals.css";
 import api from "@/utils/java-api";
 import { useAuth } from "@/context/AuthContext";
+import Alert from "@mui/material/Alert";
+import CheckIcon from "@mui/icons-material/Check";
 
 interface LoginCredentials {
   email: string;
@@ -18,6 +22,7 @@ const LoginPage: NextPage = () => {
     password: "",
   });
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
@@ -34,16 +39,13 @@ const LoginPage: NextPage = () => {
     e.preventDefault();
     setIsSubmitting(true);
     setErrorMessage("");
+    setSuccessMessage(false);
 
     try {
-      const response = await api.login(credentials);
-
-      if (!response?.token) {
-        throw new Error("Authentication failed: No token received");
-      }
-
-      login(response.token);
-      router.push("/");
+      await api.login(credentials);
+      login(); // Sem argumento, agora deve funcionar com o AuthContext ajustado
+      setSuccessMessage(true);
+      setTimeout(() => router.push("/"), 2000);
     } catch (error) {
       console.error("Login error:", error);
       setErrorMessage(
@@ -86,6 +88,16 @@ const LoginPage: NextPage = () => {
               <div className="mb-4 p-3 text-sm text-red-500 bg-red-500/10 rounded-md">
                 {errorMessage}
               </div>
+            )}
+
+            {successMessage && (
+              <Alert
+                icon={<CheckIcon fontSize="inherit" />}
+                severity="success"
+                sx={{ mb: 2 }}
+              >
+                Login successful! Redirecting to homepage...
+              </Alert>
             )}
 
             <form className="space-y-4" onSubmit={handleSubmit} noValidate>

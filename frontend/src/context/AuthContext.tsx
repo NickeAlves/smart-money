@@ -6,7 +6,7 @@ import api from "@/utils/java-api";
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  login: (token: string) => void;
+  login: () => void;
   logout: () => Promise<void>;
 }
 
@@ -23,12 +23,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsAuthenticated(!!token);
+    api.isAuthenticated().then((authenticated) => {
+      setIsAuthenticated(authenticated);
+    });
   }, []);
 
-  const login = (token: string) => {
-    localStorage.setItem("token", token);
+  const login = () => {
     setIsAuthenticated(true);
     router.push("/");
   };
@@ -39,7 +39,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
-      localStorage.removeItem("token");
       setIsAuthenticated(false);
       router.push("/login");
     }

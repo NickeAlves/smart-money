@@ -1,19 +1,12 @@
+"use client";
+
 const API_BASE_URL = "http://localhost:8080";
 
 const getHeaders = (isJson = true) => {
   const headers = {};
-
-  const token = localStorage.getItem("token"); // Pegando o token do localStorage
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`; // Adicionando o token no cabeçalho
-  } else {
-    console.error("Nenhum token encontrado!");
-  }
-
   if (isJson) {
     headers["Content-Type"] = "application/json";
   }
-
   return headers;
 };
 
@@ -46,6 +39,7 @@ const api = {
   async getUserById(id) {
     const response = await fetch(`${API_BASE_URL}/users/${id}`, {
       headers: getHeaders(false),
+      credentials: "include",
     });
     return handleResponse(response);
   },
@@ -55,6 +49,7 @@ const api = {
       method: "PUT",
       headers: getHeaders(),
       body: JSON.stringify(user),
+      credentials: "include",
     });
     return handleResponse(response);
   },
@@ -63,6 +58,7 @@ const api = {
     const response = await fetch(`${API_BASE_URL}/users/${id}`, {
       method: "DELETE",
       headers: getHeaders(false),
+      credentials: "include",
     });
     if (!response.ok) {
       throw new Error("Failed to delete user");
@@ -75,12 +71,9 @@ const api = {
       method: "POST",
       headers: getHeaders(),
       body: JSON.stringify(userData),
+      credentials: "include",
     });
-    const data = await handleResponse(response);
-    if (data.token) {
-      localStorage.setItem("token", data.token);
-    }
-    return data;
+    return handleResponse(response);
   },
 
   async login(credentials) {
@@ -90,9 +83,7 @@ const api = {
       body: JSON.stringify(credentials),
       credentials: "include",
     });
-
-    const data = await handleResponse(response);
-    return data;
+    return handleResponse(response);
   },
 
   async logout() {
@@ -102,40 +93,28 @@ const api = {
       credentials: "include",
     });
 
-    if (response.ok) {
-      console.log("Logout successful");
-      localStorage.removeItem("token");
-    } else {
+    if (!response.ok) {
       console.error("Logout failed:", await response.text());
     }
   },
 
   isAuthenticated() {
-    const token = localStorage.getItem("token");
-    return token ? true : false;
+    return fetch(`${API_BASE_URL}/users/me`, {
+      headers: getHeaders(),
+      credentials: "include",
+    }).then((res) => res.ok);
   },
 
   async refreshToken() {
-    const token = localStorage.getItem("token");
-    if (!token) return false;
+    const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+      method: "POST",
+      headers: getHeaders(),
+      credentials: "include",
+    });
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
-        method: "POST",
-        headers: getHeaders(),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.token) {
-          localStorage.setItem("token", data.token);
-          return true;
-        }
-      }
-    } catch (error) {
-      console.error("Token refresh error:", error);
+    if (response.ok) {
+      return true;
     }
-
     return false;
   },
 };
