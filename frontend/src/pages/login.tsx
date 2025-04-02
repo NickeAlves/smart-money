@@ -8,8 +8,6 @@ import Link from "next/link";
 import "./../styles/globals.css";
 import api from "@/utils/java-api";
 import { useAuth } from "@/context/AuthContext";
-import Alert from "@mui/material/Alert";
-import CheckIcon from "@mui/icons-material/Check";
 
 interface LoginCredentials {
   email: string;
@@ -45,7 +43,9 @@ const LoginPage: NextPage = () => {
       await api.login(credentials);
       login();
       setSuccessMessage(true);
-      setTimeout(() => router.push("/"), 2000);
+      setTimeout(() => {
+        router.push("/");
+      }, 3000);
     } catch (error) {
       console.error("Login error:", error);
       setErrorMessage(
@@ -70,6 +70,12 @@ const LoginPage: NextPage = () => {
       </Head>
 
       <div className="min-h-screen bg-gray-900 flex justify-center p-4 md:items-center">
+        {successMessage && (
+          <div className="fixed top-4 right-4 p-3 text-white bg-green-500 rounded-lg shadow-lg transition-opacity duration-300 animate-fade-out">
+            {successMessage}
+            Log in successfully!
+          </div>
+        )}
         <div className="w-full max-w-md space-y-6 mt-8 md:mt-0">
           <div className="flex justify-center">
             <img
@@ -89,17 +95,6 @@ const LoginPage: NextPage = () => {
                 {errorMessage}
               </div>
             )}
-
-            {successMessage && (
-              <Alert
-                icon={<CheckIcon fontSize="inherit" />}
-                severity="success"
-                sx={{ mb: 2 }}
-              >
-                Login successful! Redirecting to homepage...
-              </Alert>
-            )}
-
             <form className="space-y-4" onSubmit={handleSubmit} noValidate>
               <div>
                 <label

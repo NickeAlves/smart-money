@@ -13,7 +13,7 @@ const getHeaders = (isJson = true) => {
 const handleResponse = async (response) => {
   if (!response.ok) {
     const errorData = await response.json().catch(() => null);
-    const errorMessage = errorData?.message || "Request failed";
+    const errorMessage = errorData?.message;
     throw new Error(errorMessage);
   }
   return response.json();

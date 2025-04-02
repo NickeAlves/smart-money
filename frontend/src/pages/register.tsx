@@ -12,8 +12,6 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import TextField from "@mui/material/TextField";
-import Alert from "@mui/material/Alert";
-import CheckIcon from "@mui/icons-material/Check";
 
 interface RegisterFormData {
   firstName: string;
@@ -108,6 +106,12 @@ const RegisterPage: NextPage = () => {
         <meta name="Smart Money" content="Create your Smart Money account" />
         <link rel="icon" href="/rounded-logo.png" />
       </Head>
+      {successMessage && (
+        <div className="fixed top-4 right-4 p-3 text-white bg-green-500 rounded-lg shadow-lg transition-opacity duration-300 animate-fade-out">
+          {successMessage}
+          Registered successfully!
+        </div>
+      )}
 
       <div className="min-h-screen bg-gray-900 flex justify-center p-4 md:items-center">
         <div className="w-full max-w-md space-y-6 mt-4 md:mt-0">
@@ -128,16 +132,6 @@ const RegisterPage: NextPage = () => {
             <div className="mb-4 p-3 text-sm text-red-500 bg-red-500/10 rounded-md">
               {errorMessage}
             </div>
-          )}
-
-          {successMessage && (
-            <Alert
-              icon={<CheckIcon fontSize="inherit" />}
-              severity="success"
-              sx={{ mb: 2 }}
-            >
-              Registration successful! Redirecting to homepage...
-            </Alert>
           )}
 
           <div className="bg-gray-800 p-6 rounded-lg shadow-lg shadow-gray-950">
