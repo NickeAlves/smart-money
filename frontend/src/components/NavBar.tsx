@@ -46,7 +46,7 @@ const NavLinks = ({
         }`}
       >
         Home
-        <span className="absolute left-0 bottom-0 h-0.5 bg-white transition-all duration-300 w-0 group-hover:w-full"></span>
+        <span className="absolute left-0 bottom-0 h-0.5 bg-[var(--color-button)] transition-all duration-300 w-0 group-hover:w-full"></span>
       </Link>
       <Link
         href="#about"
@@ -55,7 +55,7 @@ const NavLinks = ({
         }`}
       >
         About me
-        <span className="absolute left-0 bottom-0 h-0.5 bg-white transition-all duration-300 w-0 group-hover:w-full"></span>
+        <span className="absolute left-0 bottom-0 h-0.5 bg-[var(--color-button)] transition-all duration-300 w-0 group-hover:w-full"></span>
       </Link>
       <Link
         href="#projects"
@@ -64,7 +64,7 @@ const NavLinks = ({
         }`}
       >
         Projects
-        <span className="absolute left-0 bottom-0 h-0.5 bg-white transition-all duration-300 w-0 group-hover:w-full"></span>
+        <span className="absolute left-0 bottom-0 h-0.5 bg-[var(--color-button)] transition-all duration-300 w-0 group-hover:w-full"></span>
       </Link>
 
       <Popover className="relative justify-center">
