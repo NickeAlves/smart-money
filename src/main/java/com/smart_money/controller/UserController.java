@@ -86,7 +86,6 @@ public class UserController {
                 .map(user -> ResponseEntity.ok(new ResponseDTO<>(true, user, "User updated successfully.")))
                 .orElse(ResponseEntity.status(500).body(new ResponseDTO(false, null, "Failed to update user.")));
     }
-
     @PutMapping("/{id}/upload-profile")
     public ResponseEntity<ResponseDTO<User>> uploadProfilePicture(
             @PathVariable Long id,
@@ -134,26 +133,6 @@ public class UserController {
                     false,
                     null,
                     "Error uploading file: " + e.getMessage()));
-        }
-    }
-
-    @GetMapping("/test-file-access/{filename}")
-    public ResponseEntity<String> testFileAccess(@PathVariable String filename) {
-        try {
-            Path filePath = Paths.get(UPLOAD_DIR).resolve(filename).normalize();
-
-            if (!Files.exists(filePath)) {
-                return ResponseEntity.status(404).body("File not found");
-            }
-
-            if (!Files.isReadable(filePath)) {
-                return ResponseEntity.status(403).body("File not readable");
-            }
-
-            return ResponseEntity.ok("File is accessible");
-        } catch (Exception e) {
-            return ResponseEntity.status(500)
-                    .body("Error testing file access: " + e.getMessage());
         }
     }
 

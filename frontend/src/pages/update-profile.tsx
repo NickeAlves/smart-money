@@ -1,111 +1,109 @@
 "use client";
 
 import Head from "next/head";
-import { useState, useEffect, useRef } from "react";
-import api from "../utils/java-api.js";
-import { useRouter } from "next/navigation";
 import "./../styles/globals.css";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-
-interface UserData {
-  id: string;
-  name: string;
-  lastName: string;
-  dateOfBirth: Date | null;
-  profileUrl: string;
-}
+import api from "./../utils/java-api.js";
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function UpdateProfile() {
-  const router = useRouter();
-  const [userData, setUserData] = useState<UserData>({
+  const [userData, setUserData] = useState({
     id: "",
     name: "",
     lastName: "",
-    dateOfBirth: null,
+    email: "",
+    age: "",
     profileUrl: "",
   });
-  const [originalUserData, setOriginalUserData] = useState<
-    Omit<UserData, "id" | "name" | "lastName">
-  >({
-    profileUrl: "",
-    dateOfBirth: null,
-  });
-  const [success, setSuccess] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isDateEditable, setIsDateEditable] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const getImageUrl = (url: string): string => {
-    if (!url) return "/default-profile.svg";
-    if (url.startsWith("blob:")) return url;
-    return url.includes("?") ? url : `${url}?ts=${Date.now()}`;
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [cacheBuster, setCacheBuster] = useState(Date.now());
+  const router = useRouter();
+
+  const handleNavigateHome = () => {
+    router.push("/");
+  };
+
+  const handleGoBack = () => {
+    router.back();
   };
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUserData = async () => {
       try {
-        setLoading(true);
         const user = await api.getCurrentUser();
-        const fetchedDateOfBirth = user?.dateOfBirth
-          ? new Date(user.dateOfBirth)
-          : null;
-
         setUserData({
-          id: user?.id || "",
-          name: user?.name || "",
-          lastName: user?.lastName || "",
-          dateOfBirth: fetchedDateOfBirth,
-          profileUrl: user?.profileUrl
-            ? `http://localhost:8080${user.profileUrl}`
-            : "",
-        });
-
-        setOriginalUserData({
-          profileUrl: user?.profileUrl
-            ? `http://localhost:8080${user.profileUrl}`
-            : "",
-          dateOfBirth: fetchedDateOfBirth,
+          id: user.id || "",
+          name: user.name || "",
+          lastName: user.lastName || "",
+          email: user.email || "",
+          age: user.age || "",
+          profileUrl: user.profileUrl || "",
         });
       } catch (error) {
         console.error("Error fetching user data:", error);
-        setErrorMessage("Failed to load user data. Please try again.");
+        setError("Failed to load user data");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUser();
-
-    return () => {
-      if (userData.profileUrl.startsWith("blob:")) {
-        URL.revokeObjectURL(userData.profileUrl);
-      }
-    };
+    fetchUserData();
   }, []);
 
-  const handleDateChange = (date: Date | null) => {
-    setUserData((prev) => ({ ...prev, dateOfBirth: date }));
-  };
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file || !userData.id) return;
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] || null;
-    if (file) {
-      if (userData.profileUrl.startsWith("blob:")) {
-        URL.revokeObjectURL(userData.profileUrl);
-      }
-      setSelectedFile(file);
+    setUploading(true);
+    setError("");
+    setSuccess("");
+
+    try {
       const previewUrl = URL.createObjectURL(file);
       setUserData((prev) => ({ ...prev, profileUrl: previewUrl }));
-    } else {
-      setSelectedFile(null);
+
+      const result = await api.uploadProfilePicture(userData.id, file);
+
+      if (!result?.success) {
+        throw new Error(result?.message || "Upload failed");
+      }
+
+      const newCacheBuster = Date.now();
+      setCacheBuster(newCacheBuster);
+
+      const newProfileUrl = result.data?.profileUrl
+        ? `${result.data.profileUrl}?v=${newCacheBuster}`
+        : "";
+
       setUserData((prev) => ({
         ...prev,
-        profileUrl: originalUserData.profileUrl,
+        profileUrl: newProfileUrl,
       }));
+
+      setSuccess("Profile picture updated successfully!");
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    } catch (error) {
+      console.error("Upload error:", error);
+      setError(error instanceof Error ? error.message : "Upload failed");
+
+      const user = await api.getCurrentUser();
+      setUserData((prev) => ({
+        ...prev,
+        profileUrl: user.profileUrl || "",
+      }));
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
@@ -115,245 +113,175 @@ export default function UpdateProfile() {
     }
     setUserData((prev) => ({
       ...prev,
-      profileUrl: originalUserData.profileUrl,
-      dateOfBirth: originalUserData.dateOfBirth,
     }));
-    setSelectedFile(null);
-    setIsDateEditable(false);
+
     if (fileInputRef.current) fileInputRef.current.value = "";
     router.back();
   };
 
-  const handleSubmit = async () => {
-    try {
-      setErrorMessage("");
-      setSuccess("");
-      let newProfileUrl = userData.profileUrl;
+  const getImageUrl = () => {
+    if (!userData.profileUrl) return "";
 
-      if (selectedFile) {
-        try {
-          const uploadResponse = await api.uploadProfilePicture(
-            userData.id,
-            selectedFile
-          );
-
-          if (!uploadResponse?.success) {
-            throw new Error(
-              uploadResponse?.message || "Upload failed without error message"
-            );
-          }
-
-          if (!uploadResponse.data?.profileUrl) {
-            throw new Error("Server response missing profile URL");
-          }
-
-          newProfileUrl = `http://localhost:8080${uploadResponse.data.profileUrl}`;
-
-          setUserData((prev) => ({
-            ...prev,
-            profileUrl: `${newProfileUrl}?ts=${Date.now()}`,
-          }));
-        } catch (error: unknown) {
-          let errorMessage = "Image upload failed";
-          if (error instanceof Error) {
-            errorMessage = error.message;
-          } else if (typeof error === "string") {
-            errorMessage = error;
-          }
-          throw new Error(errorMessage);
-        }
-      }
-
-      const updateResponse = await api.updateUser(userData.id, {
-        name: userData.name,
-        lastName: userData.lastName,
-        dateOfBirth: isDateEditable
-          ? userData.dateOfBirth
-          : originalUserData.dateOfBirth,
-        profileUrl: newProfileUrl.replace("http://localhost:8080", ""),
-      });
-
-      if (!updateResponse?.success) {
-        throw new Error(
-          updateResponse?.message || "Failed to update profile data"
-        );
-      }
-
-      setSuccess("Profile updated successfully!");
-
-      setTimeout(() => {
-        router.push(`/profile?refresh=${Date.now()}`);
-      }, 1500);
-    } catch (error: unknown) {
-      let errorMessage = "Failed to update profile";
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      } else if (typeof error === "string") {
-        errorMessage = error;
-      }
-
-      setErrorMessage(errorMessage);
-      console.error("Profile update error:", error);
-
-      setUserData((prev) => ({
-        ...prev,
-        profileUrl: originalUserData.profileUrl,
-      }));
+    if (userData.profileUrl.startsWith("blob:")) {
+      return userData.profileUrl;
     }
+
+    return `http://localhost:8080${userData.profileUrl}${
+      userData.profileUrl.includes("?") ? "&" : "?"
+    }v=${cacheBuster}`;
   };
 
   if (loading) {
     return (
-      <div className="flex flex-col justify-center items-center min-h-screen bg-gray-900 text-white">
-        <p>Loading...</p>
+      <div className="min-h-screen bg-gray-900 flex justify-center items-center">
+        <p className="text-white">Loading...</p>
       </div>
     );
   }
-
   return (
     <>
       <Head>
-        <title>Update profile | Smart Money</title>
+        <title>Update Profile | Smart Money</title>
         <meta name="description" content="Profile Smart Money account" />
         <link rel="icon" href="/rounded-logo.png" />
       </Head>
 
-      <header className="flex justify-start pl-6 pt-4">
-        <button onClick={handleCancel}>
-          <div className="flex rounded-full hover:scale-110 transition-transform">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-              className="size-6 text-[var(--slate)]"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
-              />
-            </svg>
-          </div>
+      <header className="p-4 flex justify-between items-center border-b border-gray-800">
+        <button
+          onClick={handleGoBack}
+          className="p-2 hover:bg-gray-800 rounded-full"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
+            />
+          </svg>
+        </button>
+        <h1 className="text-xl font-semibold">Update Profile</h1>
+        <button
+          onClick={handleNavigateHome}
+          className="p-2 hover:bg-gray-800 rounded-full"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
+            />
+          </svg>
         </button>
       </header>
 
-      <h1 className="flex justify-center text-2xl font-bold text-white mt-4">
-        Update Profile
-      </h1>
+      <div className="flex flex-col justify-center items-center min-h-[80vh] bg-gray-900 text-white gap-2 p-2">
+        <div className="w-40 h-40 flex items-center justify-center relative rounded-full border-2 border-[var(--color-button)] overflow-hidden">
+          {userData.profileUrl ? (
+            <>
+              <img
+                src={getImageUrl()}
+                alt="Profile"
+                className="w-full h-full object-cover rounded-full"
+                crossOrigin="anonymous"
+                onError={(e) => {
+                  console.error("Image error:", e);
+                  e.currentTarget.src = "/default-profile.svg";
+                }}
+                onLoad={() => {
+                  if (userData.profileUrl.startsWith("blob:")) {
+                    URL.revokeObjectURL(userData.profileUrl);
+                  }
+                }}
+              />
+              {uploading && (
+                <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="w-full h-full rounded-full bg-gray-300 flex items-center justify-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 512 512"
+                className="w-3/4 h-3/4 fill-gray-600"
+              >
+                <path
+                  d="M256 73.825a182.175 182.175 0 1 0 182.18 182.18A182.177 182.177 0 0 0 256 73.825zm0 71.833a55.05 55.05 0 1 1-55.054 55.046A55.046 55.046 0 0 1 256 145.658zm.52 208.723h-80.852c0-54.255 29.522-73.573 48.885-90.906a65.68 65.68 0 0 0 62.885 0c19.363 17.333 48.885 36.651 48.885 90.906z"
+                  data-name="Profile"
+                />
+              </svg>
+            </div>
+          )}
+        </div>
 
-      <div className="flex flex-col justify-center items-center min-h-[80vh] bg-gray-900 text-white gap-6 p-4">
+        {error && (
+          <div className="mb-4 p-2 text-red-600 text-sm bg-red-100 rounded w-full text-center">
+            {error}
+          </div>
+        )}
+
         {success && (
-          <div className="fixed top-4 right-4 p-3 text-white bg-green-500 rounded-lg shadow-lg animate-fade-in-out">
+          <div className="mb-4 p-2 text-green-600 text-sm bg-green-100 rounded w-full text-center">
             {success}
           </div>
         )}
 
-        {errorMessage && (
-          <div className="mb-4 p-3 text-sm text-red-500 bg-red-500/10 rounded-md max-w-md text-center">
-            {errorMessage}
-          </div>
-        )}
+        <input
+          id="profile-upload"
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          ref={fileInputRef}
+          className={`block w-64 mb-6 text-xs border rounded-lg cursor-pointer bg-[var(--color-button)] focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold ${
+            uploading
+              ? "text-gray-400 border-gray-200 file:bg-gray-200"
+              : "text-gray-900 border-gray-300 file:bg-gray-100 hover:file:bg-gray-200"
+          }`}
+          disabled={uploading}
+        />
 
-        <div className="w-40 h-40 flex items-center justify-center relative rounded-full border-2 border-[var(--color-button)] overflow-hidden">
-          <img
-            src={getImageUrl(userData.profileUrl)}
-            alt="Profile"
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              e.currentTarget.src = "/default-profile.svg";
-            }}
-          />
-        </div>
-
-        <div className="relative">
+        <div>
+          <label className="block text-sm text-gray-300 mb-1">First Name</label>
           <input
-            type="file"
-            id="profileImage"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="hidden"
-            ref={fileInputRef}
+            value={userData.name}
+            onChange={(e) => setUserData({ ...userData, name: e.target.value })}
+            className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <label
-            htmlFor="profileImage"
-            className="text-white bg-[var(--color-button)] rounded-lg hover:bg-[var(--color-button-hover)] px-4 py-2 shadow cursor-pointer transition-all"
-          >
-            Change Photo
-          </label>
         </div>
 
-        <div className="w-full max-w-md space-y-4">
-          <div>
-            <label className="block text-sm text-gray-300 mb-1">
-              First Name
-            </label>
-            <input
-              value={userData.name}
-              onChange={(e) =>
-                setUserData({ ...userData, name: e.target.value })
-              }
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+        <div>
+          <label className="block text-sm text-gray-300 mb-1">Last Name</label>
+          <input
+            value={userData.lastName}
+            onChange={(e) =>
+              setUserData({ ...userData, lastName: e.target.value })
+            }
+            className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
 
-          <div>
-            <label className="block text-sm text-gray-300 mb-1">
-              Last Name
-            </label>
-            <input
-              value={userData.lastName}
-              onChange={(e) =>
-                setUserData({ ...userData, lastName: e.target.value })
-              }
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm text-gray-300 mb-1">
-              Date of Birth
-            </label>
-            {!isDateEditable ? (
-              <div className="flex items-center gap-2">
-                <span className="px-4 py-2 bg-gray-800 rounded-md">
-                  {originalUserData.dateOfBirth?.toLocaleDateString() ||
-                    "Not set"}
-                </span>
-                <button
-                  onClick={() => setIsDateEditable(true)}
-                  className="text-sm text-blue-400 hover:text-blue-300"
-                >
-                  Change
-                </button>
-              </div>
-            ) : (
-              <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DatePicker
-                  value={userData.dateOfBirth}
-                  onChange={handleDateChange}
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      sx: {
-                        "& .MuiInputBase-root": {
-                          backgroundColor: "#1F2937",
-                          color: "white",
-                          "& fieldset": { borderColor: "#4B5563" },
-                          "&:hover fieldset": { borderColor: "#6366F1" },
-                        },
-                        "& .MuiInputLabel-root": { color: "#9CA3AF" },
-                        "& .Mui-focused .MuiInputLabel-root": {
-                          color: "#6366F1",
-                        },
-                      },
-                    },
-                  }}
-                />
-              </LocalizationProvider>
-            )}
-          </div>
+        <div>
+          <label className="block text-sm text-gray-300 mb-1">Age</label>
+          <input
+            value={userData.age}
+            onChange={(e) => setUserData({ ...userData, age: e.target.value })}
+            className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
         </div>
 
         <div className="flex gap-4 mt-6">
@@ -362,12 +290,6 @@ export default function UpdateProfile() {
             className="px-6 py-2 text-white bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors"
           >
             Cancel
-          </button>
-          <button
-            onClick={handleSubmit}
-            className="px-6 py-2 text-white bg-[var(--color-button)] rounded-lg hover:bg-[var(--color-button-hover)] transition-colors"
-          >
-            Save Changes
           </button>
         </div>
       </div>

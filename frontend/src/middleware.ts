@@ -8,7 +8,7 @@ export function middleware(request: NextRequest) {
   console.log("Middleware - Path:", currentPath);
   console.log("Middleware - Token from cookie:", token);
 
-  const protectedRoutes = ["/", "/dashboard", "/profile"];
+  const protectedRoutes = ["/", "/profile", "/update-profile", "/settings"];
   const authRoutes = ["/login", "/register"];
 
   if (!token && protectedRoutes.includes(currentPath)) {
@@ -25,5 +25,12 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/dashboard", "/profile", "/login", "/register"],
+  matcher: [
+    "/",
+    "/profile",
+    "/login",
+    "/register",
+    "/settings",
+    "/update-profile",
+  ],
 };

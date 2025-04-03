@@ -13,8 +13,8 @@ const getHeaders = (isJson = true) => {
 const handleResponse = async (response) => {
   if (!response.ok) {
     const errorData = await response.json().catch(() => null);
-    const errorMessage = errorData?.message;
-    throw new Error(errorMessage || "User not found");
+    const errorMessage = errorData?.message || "Request failed";
+    throw new Error(errorMessage);
   }
   return response.json();
 };
@@ -64,26 +64,7 @@ const api = {
       credentials: "include",
     });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || "Upload failed");
-    }
-
-    const responseData = await response.json();
-
-    if (!responseData.profileUrl) {
-      console.error("Unexpected response format:", responseData);
-      throw new Error("Server returned invalid image URL");
-    }
-
-    return {
-      success: true,
-      data: {
-        profileUrl: responseData.profileUrl,
-        fullUrl: `http://localhost:8080${responseData.profileUrl}`,
-      },
-      message: "Image uploaded successfully",
-    };
+    return handleResponse(response);
   },
 
   async deleteUser(id) {
