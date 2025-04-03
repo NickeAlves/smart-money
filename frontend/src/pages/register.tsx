@@ -277,8 +277,8 @@ const RegisterPage: NextPage = () => {
                 disabled={isSubmitting}
                 className={`w-full py-2.5 mt-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400 focus:ring-offset-gray-800 ${
                   isSubmitting
-                    ? "bg-indigo-400 cursor-not-allowed"
-                    : "bg-indigo-600 hover:bg-indigo-500"
+                    ? "bg-[var(--color-button)] cursor-not-allowed"
+                    : "bg-[var(--color-button)] hover:bg-orange-400"
                 }`}
               >
                 {isSubmitting ? "Registering..." : "Register"}
@@ -288,7 +288,7 @@ const RegisterPage: NextPage = () => {
                 Already have an account?{" "}
                 <Link
                   href="/login"
-                  className="font-medium text-indigo-400 hover:text-indigo-300 hover:underline"
+                  className="font-medium text-[var(--color-button)] hover:text-indigo-300 hover:underline"
                 >
                   Sign in
                 </Link>

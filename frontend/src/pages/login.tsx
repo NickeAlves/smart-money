@@ -71,7 +71,7 @@ const LoginPage: NextPage = () => {
 
       <div className="min-h-screen bg-gray-900 flex justify-center p-4 md:items-center">
         {successMessage && (
-          <div className="fixed top-4 right-4 p-3 text-white bg-green-500 rounded-lg shadow-lg transition-opacity duration-300 animate-fade-out">
+          <div className="fixed top-4 right-4 p-3 text-white bg-green-600 rounded-lg shadow-lg transition-opacity duration-300 animate-fade-out">
             {successMessage}
             Log in successfully!
           </div>
@@ -142,8 +142,8 @@ const LoginPage: NextPage = () => {
                 disabled={isSubmitting}
                 className={`w-full py-2.5 mt-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400 focus:ring-offset-gray-800 ${
                   isSubmitting
-                    ? "bg-indigo-400 cursor-not-allowed"
-                    : "bg-indigo-600 hover:bg-indigo-500"
+                    ? "bg-[var(--background)] cursor-not-allowed"
+                    : "bg-[var(--color-button)] hover:bg-orange-400"
                 }`}
               >
                 {isSubmitting ? "Logging in..." : "Login"}
@@ -153,7 +153,7 @@ const LoginPage: NextPage = () => {
                 Don&apos;t have an account?{" "}
                 <Link
                   href="/register"
-                  className="font-medium text-indigo-400 hover:text-indigo-300 hover:underline"
+                  className="font-medium text-[var(--color-button)] hover:text-indigo-300 hover:underline"
                 >
                   Sign up
                 </Link>
