@@ -107,7 +107,7 @@ const RegisterPage: NextPage = () => {
         <link rel="icon" href="/rounded-logo.png" />
       </Head>
       {successMessage && (
-        <div className="fixed top-4 right-4 p-3 text-white bg-green-500 rounded-lg shadow-lg transition-opacity duration-300 animate-fade-out">
+        <div className="fixed top-4 right-4 p-3 text-white bg-[var(--color-button)] rounded-lg shadow-lg transition-opacity duration-200 animate-fade-out">
           {successMessage}
           Registered successfully!
         </div>
@@ -278,7 +278,7 @@ const RegisterPage: NextPage = () => {
                 className={`w-full py-2.5 mt-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400 focus:ring-offset-gray-800 ${
                   isSubmitting
                     ? "bg-[var(--color-button)] cursor-not-allowed"
-                    : "bg-[var(--color-button)] hover:bg-orange-400"
+                    : "bg-[var(--color-button)] hover:bg-[var(--color-button-hover)] transition-colors"
                 }`}
               >
                 {isSubmitting ? "Registering..." : "Register"}

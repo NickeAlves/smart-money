@@ -160,7 +160,7 @@ export default function Profile() {
 
           <div className="w-full max-w-md space-y-6">
             <div className="bg-gray-800 p-6 rounded-lg">
-              <h2 className="text-lg font-semibold mb-4">
+              <h2 className="flex justify-center text-lg text-[var(--color-button)] font-bold mb-4">
                 Personal Information
               </h2>
 
