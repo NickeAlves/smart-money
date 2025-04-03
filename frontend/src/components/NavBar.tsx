@@ -150,7 +150,7 @@ export default function NavBar() {
   return (
     <div className="navbar-container">
       <nav
-        className={`w-full fixed top-0 left-0 z-50 shadow-md shadow-black transition-colors duration-300 ${
+        className={`w-full fixed top-0 left-0 z-50 border-b border-gray-800 transition-colors duration-300 ${
           isScrolled
             ? "bg-gray-800 backdrop-blur-sm"
             : "bg-[var(--custom-color)]"

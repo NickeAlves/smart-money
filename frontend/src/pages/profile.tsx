@@ -88,7 +88,7 @@ export default function Profile() {
       <header className="p-4 flex justify-between items-center border-b border-gray-800">
         <button
           onClick={handleGoBack}
-          className="p-2 hover:bg-gray-800 rounded-full"
+          className="p-2 hover:bg-[var(--color-button)] rounded-full"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -105,10 +105,10 @@ export default function Profile() {
             />
           </svg>
         </button>
-        <h1 className="text-xl font-semibold">My Profile</h1>
+        <h1 className="text-xl">My Profile</h1>
         <button
           onClick={handleNavigateHome}
-          className="p-2 hover:bg-gray-800 rounded-full"
+          className="p-2 hover:bg-[var(--color-button)] rounded-full"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
