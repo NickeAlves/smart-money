@@ -12,6 +12,7 @@ import {
   Cog6ToothIcon,
   PowerIcon,
 } from "@heroicons/react/24/solid";
+import api from "@/utils/java-api";
 
 const profileMenuItems = [
   {
@@ -37,6 +38,52 @@ const NavLinks = ({
   onLogout: () => Promise<void>;
   isLoggingOut: boolean;
 }) => {
+  const [loading, setLoading] = useState(true);
+  const [cacheBuster] = useState(Date.now());
+  const [, setError] = useState("");
+
+  const [userData, setUserData] = useState({
+    profileUrl: "",
+  });
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const user = await api.getCurrentUser();
+        setUserData({
+          profileUrl: user.profileUrl || "",
+        });
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        setError("Failed to load user data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const getImageUrl = () => {
+    if (!userData.profileUrl) return "";
+
+    if (userData.profileUrl.startsWith("blob:")) {
+      return userData.profileUrl;
+    }
+
+    return `http://localhost:8080${userData.profileUrl}${
+      userData.profileUrl.includes("?") ? "&" : "?"
+    }v=${cacheBuster}`;
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex justify-center items-center">
+        <p className="text-white">Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <>
       <Link
@@ -70,9 +117,19 @@ const NavLinks = ({
       <Popover className="relative justify-center">
         <PopoverButton className="inline-flex items-center">
           <img
-            src="profile-user-svgrepo-com.svg"
-            alt="profile-picture"
-            className="h-8 md:h-8 invert rounded-full hover:scale-110 transition-transform"
+            src={getImageUrl()}
+            alt="Profile"
+            className="md:h-12 md:w-12 border border-[var(--color-button)] rounded-full hover:scale-110 transition-transform"
+            crossOrigin="anonymous"
+            onError={(e) => {
+              console.error("Image error:", e);
+              e.currentTarget.src = "/default-profile.svg";
+            }}
+            onLoad={() => {
+              if (userData.profileUrl.startsWith("blob:")) {
+                URL.revokeObjectURL(userData.profileUrl);
+              }
+            }}
           />
         </PopoverButton>
 
