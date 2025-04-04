@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -89,37 +89,45 @@ const NavLinks = ({
       <Link
         href="/"
         className={`font-sans p-2 relative overflow-hidden group text-white ${
-          mobile ? "w-full text-center" : ""
-        }`}
+          mobile ? "w-full text-center py-3" : ""
+        } hover:bg-gray-700/50 rounded-md transition-colors`}
       >
         Home
-        <span className="absolute left-0 bottom-0 h-0.5 bg-[var(--color-button)] transition-all duration-300 w-0 group-hover:w-full"></span>
+        {!mobile && (
+          <span className="absolute left-0 bottom-0 h-0.5 bg-[var(--color-button)] transition-all duration-300 w-0 group-hover:w-full"></span>
+        )}
       </Link>
       <Link
         href="#about"
         className={`font-sans p-2 relative overflow-hidden group text-white ${
-          mobile ? "w-full text-center" : ""
-        }`}
+          mobile ? "w-full text-center py-3" : ""
+        } hover:bg-gray-700/50 rounded-md transition-colors`}
       >
         About me
-        <span className="absolute left-0 bottom-0 h-0.5 bg-[var(--color-button)] transition-all duration-300 w-0 group-hover:w-full"></span>
+        {!mobile && (
+          <span className="absolute left-0 bottom-0 h-0.5 bg-[var(--color-button)] transition-all duration-300 w-0 group-hover:w-full"></span>
+        )}
       </Link>
       <Link
         href="#projects"
         className={`font-sans p-2 relative overflow-hidden group text-white ${
-          mobile ? "w-full text-center" : ""
-        }`}
+          mobile ? "w-full text-center py-3" : ""
+        } hover:bg-gray-700/50 rounded-md transition-colors`}
       >
         Projects
-        <span className="absolute left-0 bottom-0 h-0.5 bg-[var(--color-button)] transition-all duration-300 w-0 group-hover:w-full"></span>
+        {!mobile && (
+          <span className="absolute left-0 bottom-0 h-0.5 bg-[var(--color-button)] transition-all duration-300 w-0 group-hover:w-full"></span>
+        )}
       </Link>
 
       <Popover className="relative justify-center">
-        <PopoverButton className="inline-flex items-center">
+        <PopoverButton className="inline-flex items-center outline-none">
           <img
             src={getImageUrl()}
             alt="Profile"
-            className="md:h-12 md:w-12 border border-[var(--color-button)] rounded-full hover:scale-110 transition-transform"
+            className={`${
+              mobile ? "h-10 w-10 my-3" : "h-12 w-12"
+            } border border-[var(--color-button)] rounded-full hover:scale-110 transition-transform`}
             crossOrigin="anonymous"
             onError={(e) => {
               console.error("Image error:", e);
@@ -133,7 +141,11 @@ const NavLinks = ({
           />
         </PopoverButton>
 
-        <PopoverPanel className="absolute right-0 z-10 mt-3 w-40 bg-gray-700 shadow-lg shadow-black rounded-lg">
+        <PopoverPanel
+          className={`absolute ${
+            mobile ? "left-1/2 transform -translate-x-1/2" : "right-0"
+          } z-10 mt-3 w-40 bg-gray-700 shadow-lg shadow-black rounded-lg`}
+        >
           <div className="p-2 text-white">
             {profileMenuItems.map((item, index) => {
               const Icon = item.icon;
@@ -170,6 +182,7 @@ export default function NavBar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const { logout } = useAuth();
 
   const handleLogout = async () => {
@@ -204,12 +217,16 @@ export default function NavBar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
+
   return (
     <div className="navbar-container">
       <nav
         className={`w-full fixed top-0 left-0 z-50 border-b border-gray-800 transition-colors duration-300 ${
           isScrolled
-            ? "bg-gray-800 backdrop-blur-sm"
+            ? "bg-gray-800/90 backdrop-blur-sm"
             : "bg-[var(--custom-color)]"
         }`}
       >
@@ -218,11 +235,11 @@ export default function NavBar() {
             <img
               src="/smart-money-removebg-preview.svg"
               alt="Smart Money Logo"
-              className="h-16 md:h-20 invert"
+              className="h-14 md:h-20 invert"
             />
           </Link>
 
-          <div className="gap-6 items-center font-sans hidden md:flex">
+          <div className="gap-4 md:gap-6 items-center font-sans hidden md:flex">
             <NavLinks onLogout={handleLogout} isLoggingOut={isLoggingOut} />
           </div>
 
@@ -239,9 +256,9 @@ export default function NavBar() {
       </nav>
 
       {isOpen && (
-        <div className="md:hidden fixed top-16 left-0 right-0 z-40 shadow-lg shadow-black transition-all duration-300">
-          <div className="container mx-auto px-6 py-4">
-            <div className="flex flex-col items-center gap-4">
+        <div className="md:hidden fixed top-20 left-0 right-0 z-40 bg-gray-800/95 backdrop-blur-sm shadow-lg shadow-black transition-all duration-300">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex flex-col items-center gap-1">
               <NavLinks
                 mobile
                 onLogout={handleLogout}
