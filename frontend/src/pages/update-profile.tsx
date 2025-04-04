@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { addYears, formatISO, parseISO } from "date-fns";
+import { addYears, parseISO } from "date-fns";
 
 interface UserData {
   id: string;
@@ -89,12 +89,24 @@ export default function UpdateProfile() {
     fetchUserData();
   }, []);
 
+  const calculateAge = (dateOfBirth: Date): number => {
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+    return age;
+  };
+
   const handleDateChange = (date: Date | null) => {
     if (date) {
-      const today = new Date();
-      const minDate = addYears(today, -13);
-
-      if (date > minDate) {
+      const age = calculateAge(date);
+      if (age < 13) {
         setError("You must be at least 13 years old");
         return;
       }
@@ -136,8 +148,6 @@ export default function UpdateProfile() {
         profileUrl: newProfileUrl,
       }));
 
-      setSuccess("Profile picture updated successfully!");
-
       setTimeout(() => {
         window.location.reload();
       }, 500);
@@ -162,53 +172,51 @@ export default function UpdateProfile() {
       setSuccess("");
 
       if (userData.dateOfBirth) {
-        const today = new Date();
-        const minDate = addYears(today, -13);
-
-        if (userData.dateOfBirth > minDate) {
-          setError("You must be at least 13 years old");
+        const age = calculateAge(userData.dateOfBirth);
+        if (age < 13) {
+          setErrorMessage("You must be at least 13 years old");
           return;
         }
+
+        const updateData = {
+          name: userData.name,
+          lastName: userData.lastName,
+          age: age, // Enviar a idade como inteiro
+        };
+
+        const updateResponse = await api.updateUser(userData.id, updateData);
+
+        if (!updateResponse?.success) {
+          throw new Error(
+            updateResponse?.message || "Failed to update profile"
+          );
+        }
+
+        const updatedUser = await api.getCurrentUser();
+        const updatedDateOfBirth = updatedUser.dateOfBirth
+          ? parseISO(updatedUser.dateOfBirth)
+          : null;
+
+        setUserData({
+          ...userData,
+          dateOfBirth: updatedDateOfBirth,
+          profileUrl: updatedUser.profileUrl || userData.profileUrl,
+        });
+
+        setOriginalUserData({
+          profileUrl: updatedUser.profileUrl || originalUserData.profileUrl,
+          dateOfBirth: updatedDateOfBirth,
+        });
+
+        setSuccess("Profile updated successfully!");
+        setIsDateEditable(false);
+
+        setTimeout(() => {
+          window.location.href = `/profile?t=${Date.now()}`;
+        }, 1500);
+      } else {
+        setErrorMessage("Please select a date of birth");
       }
-
-      const updateData = {
-        name: userData.name,
-        lastName: userData.lastName,
-        dateOfBirth: userData.dateOfBirth
-          ? formatISO(userData.dateOfBirth, { representation: "date" })
-          : null,
-      };
-
-      const updateResponse = await api.updateUser(userData.id, updateData);
-
-      if (!updateResponse?.success) {
-        throw new Error(updateResponse?.message || "Failed to update profile");
-      }
-
-      // Force a complete refresh of user data
-      const updatedUser = await api.getCurrentUser();
-      const updatedDateOfBirth = updatedUser.dateOfBirth
-        ? parseISO(updatedUser.dateOfBirth)
-        : null;
-
-      setUserData({
-        ...userData,
-        dateOfBirth: updatedDateOfBirth,
-        profileUrl: updatedUser.profileUrl || userData.profileUrl,
-      });
-
-      setOriginalUserData({
-        profileUrl: updatedUser.profileUrl || originalUserData.profileUrl,
-        dateOfBirth: updatedDateOfBirth,
-      });
-
-      setSuccess("Profile updated successfully!");
-      setIsDateEditable(false);
-
-      // Force a hard refresh of the profile page
-      setTimeout(() => {
-        window.location.href = `/profile?t=${Date.now()}`;
-      }, 1500);
     } catch (error: unknown) {
       let errorMessage = "Failed to update profile";
       if (error instanceof Error) {
@@ -234,6 +242,7 @@ export default function UpdateProfile() {
     setIsDateEditable(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
     setError("");
+    router.push("/profile");
   };
 
   const getImageUrl = () => {

@@ -18,6 +18,7 @@ public record RegisterUserDTO(@NotBlank(message = "Please, enter your name")
                               @Size(min = 6, max = 100, message = "Password must be between 6 and 100 characters")
                               String password,
 
+                              @Size(min = 13, max = 100, message = "You must be at least 13 years old")
                               @NotNull(message = "Age cannot be null")
                               @Positive(message = "Age must be positive")
                               Integer age) {
