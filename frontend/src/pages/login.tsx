@@ -71,7 +71,7 @@ const LoginPage: NextPage = () => {
 
       <div className="min-h-screen bg-gray-900 flex justify-center p-4 md:items-center">
         {successMessage && (
-          <div className="fixed top-4 right-4 p-3 text-white bg-[var(--color-button)]  rounded-lg shadow-lg transition-opacity duration-200 animate-fade-out">
+          <div className="fixed top-4 right-4 p-3 text-white bg-green-500  rounded-lg shadow-lg transition-opacity duration-200 animate-fade-out">
             {successMessage}
             Log in successfully!
           </div>
