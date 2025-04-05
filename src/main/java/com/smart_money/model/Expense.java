@@ -4,11 +4,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 
-import java.util.UUID;
-
 @Entity
 @Table(name = "expenses")
-public class Expenses {
+public class Expense {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,17 +20,17 @@ public class Expenses {
     private Double value;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "owner_id", nullable = false)
+    private User owner;
 
-    public Expenses() {
+    public Expense() {
     }
 
-    public Expenses(String title, String description, Double value, User user) {
+    public Expense(String title, String description, Double value, User owner) {
         this.title = title;
         this.description = description;
         this.value = value;
-        this.user = user;
+        this.owner = owner;
     }
 
     public Long getId() {
@@ -67,11 +65,11 @@ public class Expenses {
         this.value = value;
     }
 
-    public User getUser() {
-        return user;
+    public User getOwner() {
+        return owner;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 }

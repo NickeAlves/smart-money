@@ -34,8 +34,8 @@ public class User {
 
     private String profileUrl;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Expenses> expenses;
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Expense> expenses;
 
     public User() {
     }
@@ -53,8 +53,8 @@ public class User {
         return id;
     }
 
-    public Long setId(Long id) {
-        return this.id = id;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -105,12 +105,12 @@ public class User {
         this.profileUrl = profileUrl;
     }
 
-    public List<Expenses> getExpenses() {
+    public List<Expense> getExpenses() {
         return expenses;
     }
 
-    public void setExpenses(List<Expenses> expenses) {
-        this.expenses = expenses;
+    public void setExpenses(List<Expense> expens) {
+        this.expenses = expens;
     }
 
     public String getUsername() {

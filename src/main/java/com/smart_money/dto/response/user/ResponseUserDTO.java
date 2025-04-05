@@ -1,11 +1,11 @@
-package com.smart_money.dto.reponse;
+package com.smart_money.dto.response.user;
 
-public class ResponseDTO<T>  {
+public class ResponseUserDTO<T>  {
     private boolean success;
     private T token;
     private String message;
 
-    public ResponseDTO(boolean success, T token, String message) {
+    public ResponseUserDTO(boolean success, T token, String message) {
         this.success = success;
         this.token = token;
         this.message = message;

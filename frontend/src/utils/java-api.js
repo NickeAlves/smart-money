@@ -20,14 +20,6 @@ const handleResponse = async (response) => {
 };
 
 const api = {
-  async getAllUsers() {
-    const response = await fetch(`${API_BASE_URL}/users`, {
-      headers: getHeaders(false),
-      credentials: "include",
-    });
-    return handleResponse(response);
-  },
-
   async getCurrentUser() {
     const response = await fetch(`${API_BASE_URL}/users/me`, {
       headers: getHeaders(),

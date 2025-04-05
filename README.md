@@ -8,7 +8,7 @@
 <h1 align="center" style="color: green;">🧠 Smart Money 🧠</h1>
 
 
-**Smart Money** is your wallet's best friend, where you can control your expenses, earnings, and plan financially for the trip of your dreams or that long-awaited goal.
+**Smart Money** is your wallet's best friend, where you can control your expens, earnings, and plan financially for the trip of your dreams or that long-awaited goal.
 
 ---
 ## 🏛️ Architecture

@@ -1,4 +1,4 @@
-package com.smart_money.dto.request;
+package com.smart_money.dto.request.user;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.Email;

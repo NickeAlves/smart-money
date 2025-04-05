@@ -1,6 +1,6 @@
 package com.smart_money.service;
 
-import com.smart_money.dto.request.UpdateUserDTO;
+import com.smart_money.dto.request.user.UpdateUserDTO;
 import com.smart_money.model.User;
 import com.smart_money.repository.UserRepository;
 import org.springframework.stereotype.Service;

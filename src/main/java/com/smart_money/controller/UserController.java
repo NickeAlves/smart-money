@@ -1,8 +1,8 @@
 package com.smart_money.controller;
 
-import com.smart_money.dto.reponse.CurrentUserDTO;
-import com.smart_money.dto.reponse.ResponseDTO;
-import com.smart_money.dto.request.UpdateUserDTO;
+import com.smart_money.dto.response.user.CurrentUserDTO;
+import com.smart_money.dto.response.user.ResponseUserDTO;
+import com.smart_money.dto.request.user.UpdateUserDTO;
 import com.smart_money.model.User;
 import com.smart_money.security.TokenService;
 import com.smart_money.service.UserService;
@@ -73,31 +73,31 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseDTO<User>> updateUser(@PathVariable Long id, @RequestBody UpdateUserDTO updateUserDTO) {
+    public ResponseEntity<ResponseUserDTO<User>> updateUser(@PathVariable Long id, @RequestBody UpdateUserDTO updateUserDTO) {
         Optional<User> optionalUser = userService.findUserById(id);
 
         if (optionalUser.isEmpty()) {
-            return ResponseEntity.status(404).body(new ResponseDTO(false, null, "User not found."));
+            return ResponseEntity.status(404).body(new ResponseUserDTO(false, null, "User not found."));
         }
 
         Optional<User> updatedUser = userService.updateUser(id, updateUserDTO);
 
         return updatedUser
-                .map(user -> ResponseEntity.ok(new ResponseDTO<>(true, user, "User updated successfully.")))
-                .orElse(ResponseEntity.status(500).body(new ResponseDTO(false, null, "Failed to update user.")));
+                .map(user -> ResponseEntity.ok(new ResponseUserDTO<>(true, user, "User updated successfully.")))
+                .orElse(ResponseEntity.status(500).body(new ResponseUserDTO(false, null, "Failed to update user.")));
     }
     @PutMapping("/{id}/upload-profile")
-    public ResponseEntity<ResponseDTO<User>> uploadProfilePicture(
+    public ResponseEntity<ResponseUserDTO<User>> uploadProfilePicture(
             @PathVariable Long id,
             @RequestParam("profileImage") MultipartFile file) {
 
         Optional<User> optionalUser = userService.findUserById(id);
         if (optionalUser.isEmpty()) {
-            return ResponseEntity.status(404).body(new ResponseDTO(false, null, "User not found."));
+            return ResponseEntity.status(404).body(new ResponseUserDTO(false, null, "User not found."));
         }
 
         if (file.isEmpty()) {
-            return ResponseEntity.status(400).body(new ResponseDTO(false, null, "No file uploaded."));
+            return ResponseEntity.status(400).body(new ResponseUserDTO(false, null, "No file uploaded."));
         }
 
         try {
@@ -120,16 +120,16 @@ public class UserController {
             Optional<User> updatedUser = userService.updateUser(id, updateUserDTO);
 
             return updatedUser
-                    .map(user -> ResponseEntity.ok(new ResponseDTO<>(
+                    .map(user -> ResponseEntity.ok(new ResponseUserDTO<>(
                             true,
                             user,
                             "Profile picture updated successfully.")))
-                    .orElse(ResponseEntity.status(500).body(new ResponseDTO(
+                    .orElse(ResponseEntity.status(500).body(new ResponseUserDTO(
                             false,
                             null,
                             "Failed to update profile picture.")));
         } catch (IOException e) {
-            return ResponseEntity.status(500).body(new ResponseDTO(
+            return ResponseEntity.status(500).body(new ResponseUserDTO(
                     false,
                     null,
                     "Error uploading file: " + e.getMessage()));
@@ -168,10 +168,10 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ResponseDTO> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<ResponseUserDTO> deleteUser(@PathVariable Long id) {
         if (userService.deleteUser(id)) {
-            return ResponseEntity.ok(new ResponseDTO(true, null, "User deleted successfully."));
+            return ResponseEntity.ok(new ResponseUserDTO(true, null, "User deleted successfully."));
         }
-        return ResponseEntity.status(404).body(new ResponseDTO(false, null, "User not found."));
+        return ResponseEntity.status(404).body(new ResponseUserDTO(false, null, "User not found."));
     }
 }

@@ -5,12 +5,14 @@ import ScrollToTopButton from "@/components/ScrollToTopButton";
 export default function Home() {
   return (
     <>
-      <main className="pt-20 min-h-screen bg-gray-900">
-        <div className="container mx-auto px-4 py-8">
-          <Header />
-          <ScrollToTopButton />
-        </div>
+      <header className="">
+        <Header />
+        <ScrollToTopButton />
+      </header>
+      <main className="flex justify-center bg-gray-900 pt-24 pr-12 pl-12">
+        <div className="container bg-[var(--slate)] rounded-2xl p-12"></div>
       </main>
+      <footer></footer>
     </>
   );
 }
