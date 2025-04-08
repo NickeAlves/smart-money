@@ -6,7 +6,7 @@ import { useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import "./../styles/globals.css";
-import api from "@/utils/java-api";
+import api from "@/integrations/java-api";
 import { useAuth } from "@/context/AuthContext";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -90,7 +90,7 @@ const RegisterPage: NextPage = () => {
       await api.register(userData);
       login();
       setSuccessMessage(true);
-      setTimeout(() => router.push("/"), 2000);
+      setTimeout(() => router.push("/"), 1000);
     } catch (error) {
       const err = error as Error;
       setErrorMessage(err.message || "Registration failed. Please try again.");

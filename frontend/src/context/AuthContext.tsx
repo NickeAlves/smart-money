@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import api from "@/utils/java-api";
+import api from "@/integrations/java-api";
 
 interface AuthContextType {
   isAuthenticated: boolean;

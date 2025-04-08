@@ -2,7 +2,7 @@
 
 import Head from "next/head";
 import "./../styles/globals.css";
-import api from "./../utils/java-api.js";
+import api from "../integrations/java-api.js";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 

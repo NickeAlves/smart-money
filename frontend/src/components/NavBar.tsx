@@ -12,7 +12,7 @@ import {
   Cog6ToothIcon,
   PowerIcon,
 } from "@heroicons/react/24/solid";
-import api from "@/utils/java-api";
+import api from "@/integrations/java-api";
 
 const profileMenuItems = [
   {
@@ -92,29 +92,40 @@ const NavLinks = ({
           mobile ? "w-full text-center py-3" : ""
         } hover:bg-gray-700/50 rounded-md transition-colors`}
       >
-        Home
+        Dashboard
         {!mobile && (
           <span className="absolute left-0 bottom-0 h-0.5 bg-[var(--color-button)] transition-all duration-300 w-0 group-hover:w-full"></span>
         )}
       </Link>
       <Link
-        href="#about"
+        href="/balance"
         className={`font-sans p-2 relative overflow-hidden group text-white ${
           mobile ? "w-full text-center py-3" : ""
         } hover:bg-gray-700/50 rounded-md transition-colors`}
       >
-        About me
+        Balance
         {!mobile && (
           <span className="absolute left-0 bottom-0 h-0.5 bg-[var(--color-button)] transition-all duration-300 w-0 group-hover:w-full"></span>
         )}
       </Link>
       <Link
-        href="#projects"
+        href="/expenses"
         className={`font-sans p-2 relative overflow-hidden group text-white ${
           mobile ? "w-full text-center py-3" : ""
         } hover:bg-gray-700/50 rounded-md transition-colors`}
       >
-        Projects
+        Expenses
+        {!mobile && (
+          <span className="absolute left-0 bottom-0 h-0.5 bg-[var(--color-button)] transition-all duration-300 w-0 group-hover:w-full"></span>
+        )}
+      </Link>
+      <Link
+        href="/incomes"
+        className={`font-sans p-2 relative overflow-hidden group text-white ${
+          mobile ? "w-full text-center py-3" : ""
+        } hover:bg-gray-700/50 rounded-md transition-colors`}
+      >
+        Incomes
         {!mobile && (
           <span className="absolute left-0 bottom-0 h-0.5 bg-[var(--color-button)] transition-all duration-300 w-0 group-hover:w-full"></span>
         )}
@@ -154,7 +165,7 @@ const NavLinks = ({
                   key={index}
                   onClick={onLogout}
                   disabled={isLoggingOut}
-                  className="w-full flex items-center justify-start gap-2 px-4 py-2 text-red-600 hover:bg-gray-800 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex items-center justify-start gap-2 px-4 py-2 text-red-600 hover:bg-gray-800 rounded disabled:opacity-50 disabled:cursor-not-allowed  duration-300"
                 >
                   <Icon className="h-4 w-4" />
                   {isLoggingOut ? "Exiting..." : item.label}
@@ -163,7 +174,7 @@ const NavLinks = ({
                 <Link
                   key={index}
                   href={`/${item.label.toLowerCase().replace("my ", "")}`}
-                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-800 rounded"
+                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-800 rounded duration-300"
                 >
                   <Icon className="h-4 w-4" />
                   {item.label}

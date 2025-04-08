@@ -7,31 +7,80 @@
 
 <h1 align="center" style="color: green;">🧠 Smart Money 🧠</h1>
 
-
-**Smart Money** is your wallet's best friend, where you can control your expens, earnings, and plan financially for the trip of your dreams or that long-awaited goal.
+**Smart Money** is your wallet's best friend — a platform where you can control your **expenses**, **earnings**, and financially plan for the **trip of your dreams** or that long-awaited goal.
 
 ---
-## 🏛️ Architecture
 
-![img.png](img.png)
+## 🏛️ MVC Architecture
 
-🔗 link: https://app.eraser.io/workspace/fc3yBK3uDL0Wc3oIpNts?origin=share 
+![MVC Diagram](diagram-export-4-8-2025-9_11_44-PM.png)
 
-----
-## ⚙️ Backend 
- 
- - **Languages:** Java
- - **Frameworks:** Spring Boot
- - **Database:** PostgreSQL 
+🔗 [Click here to view the architecture diagram](https://app.eraser.io/workspace/R7MnCVXMmRYGHFdqH4Yt?origin=share)
+
 ---
-## 💻 Frontend 
+
+## 📁 Project Structure
+
+### 🖥️ Back-End
+
+<pre>  
+com.smart_money 
+├── config 
+├── controller 
+├── dto
+│   ├── Request  
+│   └── Response 
+├── model 
+├── repository 
+├── security 
+└── service 
+</pre>
+
+### 💻 Front-End
+
+<pre>
+frontend
+├── .next
+├── node_modules
+├── public
+├── src
+│   ├── app
+│   ├── components
+│   ├── context
+│   ├── integrations
+│   ├── pages
+│   └── styles
+├── middleware.ts
+├── .gitignore
+├── eslint.config.mjs
+├── next-env.d.ts
+├── next.config.ts
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── postcss.config.mjs
+├── tailwind.config.ts
+└── tsconfig.json
+</pre>
+
+---
+
+## ⚙️ Back-End
+
+- **Language:** Java
+- **Framework:** Spring Boot
+- **Database:** PostgreSQL
+
+---
+
+## 💻 Front-End
 
 - **Languages:** JavaScript, TypeScript
-- **Frameworks:** React, Next.js, Tailwind Css
-- **Markup and Styling:** HTML, CSS.
+- **Frameworks:** React, Next.js, Tailwind CSS
+- **Markup & Styling:** HTML, CSS
 
 ---
-## 📜 License 
 
-All rights reserved [Nicolas Alves©](https://www.linkedin.com/in/nicolasdevback)
+## 📜 License
 
+All rights reserved © [Nicolas Alves](https://www.linkedin.com/in/nicolasdevback)

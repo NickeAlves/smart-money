@@ -6,7 +6,7 @@ import { useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import "./../styles/globals.css";
-import api from "@/utils/java-api";
+import api from "@/integrations/java-api";
 import { useAuth } from "@/context/AuthContext";
 
 interface LoginCredentials {
@@ -20,7 +20,6 @@ const LoginPage: NextPage = () => {
     password: "",
   });
   const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
@@ -37,15 +36,13 @@ const LoginPage: NextPage = () => {
     e.preventDefault();
     setIsSubmitting(true);
     setErrorMessage("");
-    setSuccessMessage(false);
 
     try {
       await api.login(credentials);
       login();
-      setSuccessMessage(true);
       setTimeout(() => {
         router.push("/");
-      }, 2000);
+      }, 1000);
     } catch (error) {
       const err = error as Error;
       setErrorMessage(
@@ -68,12 +65,6 @@ const LoginPage: NextPage = () => {
       </Head>
 
       <div className="min-h-screen bg-gray-900 flex justify-center p-4 md:items-center">
-        {successMessage && (
-          <div className="fixed top-4 right-4 p-3 text-white bg-green-500  rounded-lg shadow-lg transition-opacity duration-200 animate-fade-out">
-            {successMessage}
-            Log in successfully!
-          </div>
-        )}
         <div className="w-full max-w-md space-y-6 mt-8 md:mt-0">
           <div className="flex justify-center">
             <img
