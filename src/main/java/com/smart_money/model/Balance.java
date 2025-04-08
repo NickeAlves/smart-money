@@ -6,13 +6,11 @@ public class Balance {
     private BigDecimal totalIncomes;
     private BigDecimal totalExpenses;
     private BigDecimal netBalance;
-    private Currency currency;
 
-    public Balance(BigDecimal totalIncomes, BigDecimal totalExpenses, BigDecimal netBalance, Currency currency) {
+    public Balance(BigDecimal totalIncomes, BigDecimal totalExpenses, BigDecimal netBalance) {
         this.totalIncomes = totalIncomes;
         this.totalExpenses = totalExpenses;
         this.netBalance = netBalance;
-        this.currency = currency;
     }
 
     public BigDecimal getTotalIncomes() {
@@ -26,10 +24,5 @@ public class Balance {
     public BigDecimal getNetBalance() {
         return netBalance;
     }
-
-    public Currency getCurrency() {
-        return currency;
-    }
-
 
 }

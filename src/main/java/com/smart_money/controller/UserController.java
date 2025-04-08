@@ -1,14 +1,20 @@
 package com.smart_money.controller;
 
+import com.smart_money.dto.request.user.VerifyPasswordDTO;
 import com.smart_money.dto.response.user.CurrentUserDTO;
 import com.smart_money.dto.response.user.ResponseUserDTO;
 import com.smart_money.dto.request.user.UpdateUserDTO;
 import com.smart_money.model.User;
 import com.smart_money.security.TokenService;
 import com.smart_money.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,14 +30,18 @@ import java.util.*;
 @RestController
 @RequestMapping("/users")
 public class UserController {
+    private final AuthenticationManager authenticationManager;
     private final UserService userService;
     private final TokenService tokenService;
+    private final PasswordEncoder passwordEncoder;
 
     private static final String UPLOAD_DIR = "uploads/profiles/";
 
-    public UserController(UserService userService, TokenService tokenService) {
+    public UserController(UserService userService, TokenService tokenService, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
         this.userService = userService;
         this.tokenService = tokenService;
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
     }
 
     @GetMapping
@@ -73,19 +83,53 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseUserDTO<User>> updateUser(@PathVariable Long id, @RequestBody UpdateUserDTO updateUserDTO) {
+    public ResponseEntity<ResponseUserDTO<User>> updateUser(
+            @PathVariable Long id,
+            @RequestBody UpdateUserDTO updateUserDTO,
+            HttpServletResponse response) {
+
         Optional<User> optionalUser = userService.findUserById(id);
 
         if (optionalUser.isEmpty()) {
             return ResponseEntity.status(404).body(new ResponseUserDTO(false, null, "User not found."));
         }
 
-        Optional<User> updatedUser = userService.updateUser(id, updateUserDTO);
+        User currentUser = optionalUser.get();
 
-        return updatedUser
-                .map(user -> ResponseEntity.ok(new ResponseUserDTO<>(true, user, "User updated successfully.")))
-                .orElse(ResponseEntity.status(500).body(new ResponseUserDTO(false, null, "Failed to update user.")));
+        if (updateUserDTO.email() != null && !updateUserDTO.email().equals(currentUser.getEmail())
+                && userService.findUserByEmail(updateUserDTO.email()).isPresent()) {
+            return ResponseEntity.status(400).body(new ResponseUserDTO(false, null, "Email already registered"));
+        }
+
+        Optional<User> updatedUserOpt = userService.updateUser(id, updateUserDTO);
+
+        if (updatedUserOpt.isEmpty()) {
+            return ResponseEntity.status(500).body(new ResponseUserDTO(false, null, "Failed to update user."));
+        }
+
+        User updatedUser = updatedUserOpt.get();
+
+        if (updateUserDTO.email() != null || updateUserDTO.password() != null) {
+            String newToken = performLogin(updatedUser);
+
+            Cookie cookie = new Cookie("auth_token", newToken);
+            cookie.setHttpOnly(true);
+            cookie.setPath("/");
+            cookie.setMaxAge(2 * 60 * 60);
+            response.addCookie(cookie);
+        }
+
+        ResponseUserDTO<User> responseDTO = new ResponseUserDTO<>(true, updatedUser, "User updated successfully.");
+        return ResponseEntity.ok(responseDTO);
     }
+
+    private String performLogin(User updatedUser) {
+        Authentication auth = new UsernamePasswordAuthenticationToken(updatedUser.getEmail(), updatedUser.getPassword());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        return tokenService.generateToken(updatedUser);
+    }
+
     @PutMapping("/{id}/upload-profile")
     public ResponseEntity<ResponseUserDTO<User>> uploadProfilePicture(
             @PathVariable Long id,
@@ -134,6 +178,29 @@ public class UserController {
                     null,
                     "Error uploading file: " + e.getMessage()));
         }
+    }
+
+    @PostMapping("/verify-password")
+    public ResponseEntity<ResponseUserDTO> verifyPassword(@RequestBody VerifyPasswordDTO body) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body(new ResponseUserDTO(false, null, "Unauthorized"));
+        }
+
+        String userEmail = authentication.getName();
+        Optional<User> optionalUser = userService.findUserByEmail(userEmail);
+
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(404).body(new ResponseUserDTO(false, null, "User not found"));
+        }
+
+        User user = optionalUser.get();
+
+        if (!passwordEncoder.matches(body.password(), user.getPassword())) {
+            return ResponseEntity.status(401).body(new ResponseUserDTO(false, null, "Invalid password"));
+        }
+
+        return ResponseEntity.ok(new ResponseUserDTO(true, null, "Password verified successfully"));
     }
 
     private void setDirectoryPermissions(Path path) throws IOException {

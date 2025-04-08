@@ -47,11 +47,9 @@ const LoginPage: NextPage = () => {
         router.push("/");
       }, 2000);
     } catch (error) {
-      console.error("Login error:", error);
+      const err = error as Error;
       setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : "Login failed. Please try again."
+        err instanceof Error ? err.message : "Login failed. Please try again."
       );
     } finally {
       setIsSubmitting(false);

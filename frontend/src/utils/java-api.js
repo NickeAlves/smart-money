@@ -66,7 +66,7 @@ const api = {
       credentials: "include",
     });
     if (!response.ok) {
-      throw new Error("Failed to delete user");
+      throw new Error(errorMessage || "Failed to delete user");
     }
     return true;
   },
@@ -103,24 +103,39 @@ const api = {
     }
   },
 
-  isAuthenticated() {
-    return fetch(`${API_BASE_URL}/users/me`, {
-      headers: getHeaders(),
-      credentials: "include",
-    }).then((res) => res.ok);
-  },
-
-  async refreshToken() {
+  async refreshLogin(credentials) {
     const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
       method: "POST",
       headers: getHeaders(),
       credentials: "include",
     });
-
-    if (response.ok) {
-      return true;
+    if (!response.ok) {
+      console.error("Logout failed:", await response.text());
     }
-    return false;
+    const responseLogin = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(credentials),
+      credentials: "include",
+    });
+    return handleResponse(responseLogin);
+  },
+
+  async verifyPassword(password) {
+    const response = await fetch(`${API_BASE_URL}/users/verify-password`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ password }),
+      credentials: "include",
+    });
+    return handleResponse(response);
+  },
+
+  isAuthenticated() {
+    return fetch(`${API_BASE_URL}/users/me`, {
+      headers: getHeaders(),
+      credentials: "include",
+    }).then((res) => res.ok);
   },
 };
 

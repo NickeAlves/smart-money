@@ -1,6 +1,5 @@
 package com.smart_money.repository;
 
-import com.smart_money.model.Currency;
 import com.smart_money.model.Expense;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

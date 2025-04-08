@@ -1,12 +1,8 @@
 package com.smart_money.service;
 
-import com.smart_money.dto.response.balance.ResponseBalanceDTO;
 import com.smart_money.model.Balance;
-import com.smart_money.model.Currency;
-import com.smart_money.model.User;
 import com.smart_money.repository.ExpenseRepository;
 import com.smart_money.repository.IncomeRepository;
-import com.smart_money.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -21,11 +17,11 @@ public class BalanceService {
         this.incomeRepository = incomeRepository;
     }
 
-    public Balance calculateBalanceByUserId(Long userId, Currency currency) {
+    public Balance calculateBalanceByUserId(Long userId) {
         BigDecimal totalExpenses = expenseRepository.sumByOwnerId(userId).orElse(BigDecimal.ZERO);
         BigDecimal totalIncomes = incomeRepository.sumByOwnerId(userId).orElse(BigDecimal.ZERO);
         BigDecimal netBalance = totalIncomes.subtract(totalExpenses);
 
-        return new Balance(totalIncomes, totalExpenses, netBalance, currency);
+        return new Balance(totalIncomes, totalExpenses, netBalance);
     }
 }

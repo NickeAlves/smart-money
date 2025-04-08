@@ -181,7 +181,7 @@ export default function UpdateProfile() {
         const updateData = {
           name: userData.name,
           lastName: userData.lastName,
-          age: age, // Enviar a idade como inteiro
+          age: age,
         };
 
         const updateResponse = await api.updateUser(userData.id, updateData);

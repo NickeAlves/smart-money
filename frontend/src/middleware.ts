@@ -8,7 +8,13 @@ export function middleware(request: NextRequest) {
   console.log("Middleware - Path:", currentPath);
   console.log("Middleware - Token from cookie:", token);
 
-  const protectedRoutes = ["/", "/profile", "/update-profile", "/settings"];
+  const protectedRoutes = [
+    "/",
+    "/profile",
+    "/update-profile",
+    "/settings",
+    "/verify-password",
+  ];
   const authRoutes = ["/login", "/register"];
 
   if (!token && protectedRoutes.includes(currentPath)) {
@@ -32,5 +38,6 @@ export const config = {
     "/register",
     "/settings",
     "/update-profile",
+    "/verify-password",
   ],
 };

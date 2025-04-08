@@ -58,7 +58,7 @@ export default function Profile() {
   };
 
   const getImageUrl = () => {
-    if (!userData.profileUrl) return "";
+    if (!userData.profileUrl) return "/default-profile.svg";
 
     if (userData.profileUrl.startsWith("blob:")) {
       return userData.profileUrl;
