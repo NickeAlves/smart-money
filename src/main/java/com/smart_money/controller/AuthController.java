@@ -47,7 +47,7 @@ public class AuthController {
         Cookie cookie = new Cookie("auth_token", token);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-        cookie.setMaxAge(2 * 60 * 60);
+        cookie.setMaxAge(86400);
         response.addCookie(cookie);
 
         return ResponseEntity.ok(new ResponseUserDTO(true, token, "Registered successfully"));
@@ -72,7 +72,7 @@ public class AuthController {
         Cookie cookie = new Cookie("auth_token", token);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-        cookie.setMaxAge(2 * 60 * 60);
+        cookie.setMaxAge(86400);
         response.addCookie(cookie);
 
         return ResponseEntity.ok(new ResponseUserDTO(true, token, "Logged in successfully"));
