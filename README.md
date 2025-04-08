@@ -18,6 +18,7 @@
 - **Financial Planning:** Set goals and plan for the future.
 - **User-Friendly Interface:** Clean and intuitive design powered by Next.js and Tailwind CSS.
 - **Secure Backend:** Built with Spring Boot and PostgreSQL for reliable data handling.
+- **Authentication & Authorization:** Custom middleware and context-based auth for secure access.
 
 ---
 
@@ -35,7 +36,6 @@ The project follows the **Model-View-Controller (MVC)** pattern to ensure clean 
 
 ### Backend
 
-    
     com.smart_money
     ├── config
     ├── controller
@@ -47,11 +47,7 @@ The project follows the **Model-View-Controller (MVC)** pattern to ensure clean 
     ├── security
     └── service
 
-
-
 ### Frontend
-
-
 
     frontend
     ├── public
@@ -65,8 +61,7 @@ The project follows the **Model-View-Controller (MVC)** pattern to ensure clean 
     ├── middleware.ts
     └── tsconfig.json
 
-
-
+---
 
 ## ⚙️ Tech Stack
 
@@ -84,6 +79,7 @@ The project follows the **Model-View-Controller (MVC)** pattern to ensure clean 
     - Next.js 15.2.3
     - Tailwind CSS 3.4.17
 - **Markup & Styling:** HTML, CSS
+- **Custom Utilities:** Next.js Middleware, React Context API (AuthContext)
 
 ---
 
