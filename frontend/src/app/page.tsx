@@ -9,8 +9,8 @@ export default function Home() {
         <Header />
         <ScrollToTopButton />
       </header>
-      <main className="flex justify-center bg-gray-900 pt-24 pr-12 pl-12">
-        <div className="container bg-[var(--slate)] rounded-2xl p-12"></div>
+      <main className="flex justify-center bg-gray-900 pt-32 pr-12 pl-12">
+        <div className="container bg-[var(--slate)] rounded-2xl p-2"></div>
       </main>
       <footer></footer>
     </>

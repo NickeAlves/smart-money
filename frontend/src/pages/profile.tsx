@@ -11,16 +11,33 @@ export default function Profile() {
     id: "",
     name: "",
     lastName: "",
-    email: "",
-    age: "",
+    dateOfBirth: "",
     profileUrl: "",
   });
+  const [age, setAge] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading] = useState(false);
   const [error, setError] = useState("");
   const [success] = useState("");
   const [cacheBuster] = useState(Date.now());
   const router = useRouter();
+
+  const calculateAge = (dateString: string) => {
+    if (!dateString) return null;
+    const birthDate = new Date(dateString);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
+  };
 
   const handleNavigateHome = () => {
     router.push("/");
@@ -34,14 +51,19 @@ export default function Profile() {
     const fetchUserData = async () => {
       try {
         const user = await api.getCurrentUser();
+        const calculatedAge = user.dateOfBirth
+          ? calculateAge(user.dateOfBirth)
+          : null;
+
         setUserData({
           id: user.id || "",
           name: user.name || "",
           lastName: user.lastName || "",
-          email: user.email || "",
-          age: user.age || "",
+          dateOfBirth: user.dateOfBirth || "",
           profileUrl: user.profileUrl || "",
         });
+
+        setAge(calculatedAge);
       } catch (error) {
         console.error("Error fetching user data:", error);
         setError("Failed to load user data");
@@ -54,7 +76,7 @@ export default function Profile() {
   }, []);
 
   const handleEditProfile = () => {
-    router.push("/update-profile");
+    router.push("/profile/update-profile");
   };
 
   const getImageUrl = () => {
@@ -183,14 +205,20 @@ export default function Profile() {
                 {userData.name} {userData.lastName}
               </p>
             </div>
-            <div>
-              <h1 className="text-sm text-gray-400">Email:</h1>
-              <p className="text-lg">{userData.email}</p>
-            </div>
+
             <div>
               <h1 className="text-sm text-gray-400">Age:</h1>
-              <p className="text-lg">{userData.age}</p>
+              <p className="text-lg">{age !== null ? age : "Not specified"}</p>
             </div>
+
+            {userData.dateOfBirth && (
+              <div>
+                <h1 className="text-sm text-gray-400">Date of Birth:</h1>
+                <p className="text-lg">
+                  {new Date(userData.dateOfBirth).toLocaleDateString()}
+                </p>
+              </div>
+            )}
           </div>
         </div>
 

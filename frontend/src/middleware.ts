@@ -3,27 +3,21 @@ import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("auth_token")?.value;
-  const currentPath = request.nextUrl.pathname;
+  const { pathname } = request.nextUrl;
 
-  console.log("Middleware - Path:", currentPath);
-  console.log("Middleware - Token from cookie:", token);
+  const isStaticFile = /\.(.*)$/.test(pathname);
+  const isAuthRoute =
+    pathname.startsWith("/login") || pathname.startsWith("/register");
 
-  const protectedRoutes = [
-    "/",
-    "/profile",
-    "/update-profile",
-    "/settings",
-    "/verify-password",
-  ];
-  const authRoutes = ["/login", "/register"];
+  if (isStaticFile) {
+    return NextResponse.next();
+  }
 
-  if (!token && protectedRoutes.includes(currentPath)) {
-    console.log("Redirecting to /login - No token found");
+  if (!token && !isAuthRoute) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (token && authRoutes.includes(currentPath)) {
-    console.log("Redirecting to / - Already authenticated");
+  if (token && isAuthRoute) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
@@ -31,13 +25,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/",
-    "/profile",
-    "/login",
-    "/register",
-    "/settings",
-    "/update-profile",
-    "/verify-password",
-  ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

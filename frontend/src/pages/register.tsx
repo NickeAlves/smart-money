@@ -12,22 +12,23 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import TextField from "@mui/material/TextField";
+import { format } from "date-fns";
 
 interface RegisterFormData {
-  firstName: string;
+  name: string;
   lastName: string;
   email: string;
-  dateOfBirth: Date;
+  dateOfBirth: Date | null;
   password: string;
   confirmPassword: string;
 }
 
 const RegisterPage: NextPage = () => {
   const [formData, setFormData] = useState<RegisterFormData>({
-    firstName: "",
+    name: "",
     lastName: "",
     email: "",
-    dateOfBirth: new Date(),
+    dateOfBirth: null,
     password: "",
     confirmPassword: "",
   });
@@ -48,17 +49,10 @@ const RegisterPage: NextPage = () => {
   };
 
   const handleDateChange = (date: Date | null) => {
-    if (date) {
-      setFormData((prev) => ({
-        ...prev,
-        dateOfBirth: date,
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        dateOfBirth: new Date(),
-      }));
-    }
+    setFormData((prev) => ({
+      ...prev,
+      dateOfBirth: date,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,8 +62,16 @@ const RegisterPage: NextPage = () => {
     setSuccessMessage(false);
 
     try {
+      if (formData.password.length < 6) {
+        throw new Error("Password must be a minimum of 6 characters");
+      }
+
       if (formData.password !== formData.confirmPassword) {
         throw new Error("Passwords do not match");
+      }
+
+      if (!formData.dateOfBirth) {
+        throw new Error("Date of birth is required");
       }
 
       const currentYear = new Date().getFullYear();
@@ -80,17 +82,22 @@ const RegisterPage: NextPage = () => {
       }
 
       const userData = {
-        name: formData.firstName,
+        name: formData.name,
         lastName: formData.lastName,
         email: formData.email,
         password: formData.password,
-        age: currentYear - userYear,
+        dateOfBirth: format(formData.dateOfBirth, "yyyy-MM-dd"),
       };
 
-      await api.register(userData);
-      login();
-      setSuccessMessage(true);
-      setTimeout(() => router.push("/"), 1000);
+      const response = await api.register(userData);
+
+      if (response.success) {
+        login();
+        setSuccessMessage(true);
+        setTimeout(() => router.push("/"), 1000);
+      } else {
+        throw new Error(response.message || "Registration failed");
+      }
     } catch (error) {
       const err = error as Error;
       setErrorMessage(err.message || "Registration failed. Please try again.");
@@ -108,7 +115,6 @@ const RegisterPage: NextPage = () => {
       </Head>
       {successMessage && (
         <div className="fixed top-4 right-4 p-3 text-white bg-green-500 rounded-lg shadow-lg transition-opacity duration-200 animate-fade-out">
-          {successMessage}
           Registered successfully!
         </div>
       )}
@@ -120,7 +126,6 @@ const RegisterPage: NextPage = () => {
               src="/smart-money-removebg-preview.svg"
               alt="Smart Money Logo"
               className="w-32 h-auto invert"
-              loading="lazy"
             />
           </div>
 
@@ -139,17 +144,17 @@ const RegisterPage: NextPage = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label
-                    htmlFor="firstName"
+                    htmlFor="name"
                     className="block text-sm font-medium text-gray-300 mb-1"
                   >
                     First Name
                   </label>
                   <input
-                    id="firstName"
-                    name="firstName"
+                    id="name"
+                    name="name"
                     type="text"
                     required
-                    value={formData.firstName}
+                    value={formData.name}
                     onChange={handleChange}
                     className="w-full px-3 py-2 text-sm bg-gray-700 text-gray-100 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
                   />
@@ -203,8 +208,16 @@ const RegisterPage: NextPage = () => {
                   <DatePicker
                     value={formData.dateOfBirth}
                     onChange={handleDateChange}
+                    disableFuture
                     slots={{
-                      textField: TextField,
+                      textField: (params) => (
+                        <TextField
+                          {...params}
+                          required
+                          error={!formData.dateOfBirth}
+                          helperText={!formData.dateOfBirth ? "Required" : ""}
+                        />
+                      ),
                     }}
                     slotProps={{
                       textField: {
@@ -247,7 +260,7 @@ const RegisterPage: NextPage = () => {
                   name="password"
                   type="password"
                   required
-                  minLength={8}
+                  minLength={6}
                   value={formData.password}
                   onChange={handleChange}
                   className="w-full px-3 py-2 text-sm bg-gray-700 text-gray-100 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
