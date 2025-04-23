@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermission;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @RestController
@@ -63,12 +64,18 @@ public class UserController {
         }
 
         User user = optionalUser.get();
+
+        String dobString = null;
+        if (user.getDateOfBirth() != null) {
+            dobString = user.getDateOfBirth().format(DateTimeFormatter.ISO_LOCAL_DATE);
+        }
+
         CurrentUserDTO userDTO = new CurrentUserDTO(
                 user.getId(),
                 user.getName(),
                 user.getLastName(),
                 user.getEmail(),
-                user.getAge(),
+                dobString,
                 user.getProfileUrl()
         );
 
@@ -83,51 +90,57 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseUserDTO<User>> updateUser(
-            @PathVariable Long id,
-            @RequestBody UpdateUserDTO updateUserDTO,
-            HttpServletResponse response) {
-
+    public ResponseEntity<ResponseUserDTO<String>> updateUser(@PathVariable Long id, @RequestBody UpdateUserDTO updateUserDTO, HttpServletResponse response) {
         Optional<User> optionalUser = userService.findUserById(id);
 
         if (optionalUser.isEmpty()) {
-            return ResponseEntity.status(404).body(new ResponseUserDTO(false, null, "User not found."));
+            return ResponseEntity.status(404).body(new ResponseUserDTO<>(false, null, "User not found."));
         }
 
         User currentUser = optionalUser.get();
 
         if (updateUserDTO.email() != null && !updateUserDTO.email().equals(currentUser.getEmail())
                 && userService.findUserByEmail(updateUserDTO.email()).isPresent()) {
-            return ResponseEntity.status(400).body(new ResponseUserDTO(false, null, "Email already registered"));
+            return ResponseEntity.status(400).body(new ResponseUserDTO<>(false, null, "Email already registered"));
         }
 
-        Optional<User> updatedUserOpt = userService.updateUser(id, updateUserDTO);
+        String rawPassword = updateUserDTO.password();
+        if (rawPassword != null && rawPassword.length() < 6) {
+            return ResponseEntity.status(400).body(new ResponseUserDTO<>(false, null, "Password must be at least 6 characters long."));
+        }
 
+        String encodedPassword = rawPassword != null ? passwordEncoder.encode(rawPassword) : null;
+        UpdateUserDTO updatedDTO = new UpdateUserDTO(
+                updateUserDTO.name(),
+                updateUserDTO.lastName(),
+                updateUserDTO.email(),
+                encodedPassword,
+                updateUserDTO.dateOfBirth(),
+                updateUserDTO.profileUrl()
+        );
+
+        Optional<User> updatedUserOpt = userService.updateUser(id, updatedDTO);
         if (updatedUserOpt.isEmpty()) {
-            return ResponseEntity.status(500).body(new ResponseUserDTO(false, null, "Failed to update user."));
+            return ResponseEntity.status(500).body(new ResponseUserDTO<>(false, null, "Failed to update user."));
         }
 
         User updatedUser = updatedUserOpt.get();
 
-        if (updateUserDTO.email() != null || updateUserDTO.password() != null) {
-            String newToken = performLogin(updatedUser);
+        Cookie cookie = new Cookie("auth_token", null);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
 
-            Cookie cookie = new Cookie("auth_token", newToken);
-            cookie.setHttpOnly(true);
-            cookie.setPath("/");
-            cookie.setMaxAge(86400);
-            response.addCookie(cookie);
-        }
+        String token = tokenService.generateToken(updatedUser);
 
-        ResponseUserDTO<User> responseDTO = new ResponseUserDTO<>(true, updatedUser, "User updated successfully.");
-        return ResponseEntity.ok(responseDTO);
-    }
+        cookie = new Cookie("auth_token", token);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(86400); // 1 dia
+        response.addCookie(cookie);
 
-    private String performLogin(User updatedUser) {
-        Authentication auth = new UsernamePasswordAuthenticationToken(updatedUser.getEmail(), updatedUser.getPassword());
-        SecurityContextHolder.getContext().setAuthentication(auth);
-
-        return tokenService.generateToken(updatedUser);
+        return ResponseEntity.ok(new ResponseUserDTO<>(true, token, "User updated successfully. New token generated."));
     }
 
     @PutMapping("/{id}/upload-profile")
@@ -191,7 +204,7 @@ public class UserController {
         Optional<User> optionalUser = userService.findUserByEmail(userEmail);
 
         if (optionalUser.isEmpty()) {
-            return ResponseEntity.status(404).body(new ResponseUserDTO(false, null, "User not found"));
+            return ResponseEntity.status(404).body(new ResponseUserDTO(false, null, "Email or password is incorrect"));
         }
 
         User user = optionalUser.get();

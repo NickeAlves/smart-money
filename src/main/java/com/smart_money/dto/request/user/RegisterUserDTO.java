@@ -15,11 +15,8 @@ public record RegisterUserDTO(@NotBlank(message = "Please, enter your name")
                               String email,
 
                               @NotBlank(message = "Password cannot be blank")
-                              @Size(min = 6, max = 100, message = "Password must be between 6 and 100 characters")
+                              @Size(min = 6, max = 100, message = "Password must be a minimum of 6 characters")
                               String password,
 
-                              @Min(13)
-                              @NotNull(message = "Age cannot be null")
-                              @Positive(message = "Age must be positive")
-                              Integer age) {
+                              String dateOfBirth) {
 }

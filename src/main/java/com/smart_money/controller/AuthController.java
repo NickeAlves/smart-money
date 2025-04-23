@@ -13,7 +13,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+
+import static com.smart_money.service.UserService.capitalizeFirstLetters;
 
 @RestController
 @RequestMapping("/auth")
@@ -33,12 +37,26 @@ public class AuthController {
         if (userRepository.findUserByEmail(body.email()).isPresent()) {
             return ResponseEntity.status(400).body(new ResponseUserDTO(false, null, "Email already registered"));
         }
+
+        if (body.password().length() < 6) {
+            return ResponseEntity.status(400).body(new ResponseUserDTO(false, null, "Password must be a minimum of 6 characters"));
+        }
         User newUser = new User();
-        newUser.setName(body.name());
-        newUser.setLastName(body.lastName());
+        newUser.setName(capitalizeFirstLetters(body.name()));
+        newUser.setLastName(capitalizeFirstLetters(body.lastName()));
         newUser.setEmail(body.email());
         newUser.setPassword(passwordEncoder.encode(body.password()));
-        newUser.setAge(body.age());
+
+        if (body.dateOfBirth() != null && !body.dateOfBirth().isEmpty()) {
+            try {
+                LocalDate dob = LocalDate.parse(body.dateOfBirth(), DateTimeFormatter.ISO_LOCAL_DATE);
+                newUser.setDateOfBirth(dob);
+            } catch (Exception e) {
+                return ResponseEntity.status(400).body(new ResponseUserDTO<>(false, null, "Invalid date of birth format. Use YYYY-MM-DD"));
+            }
+        } else {
+            newUser.setDateOfBirth(null);
+        }
 
         userRepository.save(newUser);
 
@@ -58,13 +76,13 @@ public class AuthController {
         Optional<User> optionalUser = userRepository.findUserByEmail(body.email());
 
         if (optionalUser.isEmpty()) {
-            return ResponseEntity.status(404).body(new ResponseUserDTO(false, null, "User not found"));
+            return ResponseEntity.status(404).body(new ResponseUserDTO(false, null, "Email or password is incorrect"));
         }
 
         User user = optionalUser.get();
 
         if (!passwordEncoder.matches(body.password(), user.getPassword())) {
-            return ResponseEntity.status(401).body(new ResponseUserDTO(false, null, "Invalid credentials"));
+            return ResponseEntity.status(401).body(new ResponseUserDTO(false, null, "Email or password is incorrect"));
         }
 
         String token = tokenService.generateToken(user);
@@ -87,5 +105,35 @@ public class AuthController {
         response.addCookie(cookie);
 
         return ResponseEntity.ok(new ResponseUserDTO(true, null, "Logged out successfully"));
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<ResponseUserDTO> refreshToken(@RequestHeader("Authorization") String authHeader, HttpServletResponse response) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body(new ResponseUserDTO(false, null, "Invalid authorization header"));
+        }
+
+        String token = authHeader.substring(7);
+        String email = tokenService.validateToken(token);
+
+        if (email == null) {
+            return ResponseEntity.status(401).body(new ResponseUserDTO(false, null, "Invalid or expired token"));
+        }
+
+        Optional<User> optionalUser = userRepository.findUserByEmail(email);
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(404).body(new ResponseUserDTO(false, null, "User not found"));
+        }
+
+        User user = optionalUser.get();
+        String newToken = tokenService.generateToken(user);
+
+        Cookie cookie = new Cookie("auth_token", newToken);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(86400);
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok(new ResponseUserDTO(true, newToken, "Token refreshed successfully"));
     }
 }

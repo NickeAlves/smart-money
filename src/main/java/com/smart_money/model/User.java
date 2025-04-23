@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -28,9 +29,7 @@ public class User {
     @NotBlank(message = "Password cannot be blank")
     private String password;
 
-    @NotNull
-    @Positive
-    private Integer age;
+    private LocalDate dateOfBirth;
 
     private String profileUrl;
 
@@ -40,12 +39,12 @@ public class User {
     public User() {
     }
 
-    public User(String name, String lastName, String email, String password, Integer age, String profileUrl) {
+    public User(String name, String lastName, String email, String password, LocalDate dateOfBirth, String profileUrl) {
         this.name = name;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
-        this.age = age;
+        this.dateOfBirth = dateOfBirth;
         this.profileUrl = profileUrl;
     }
 
@@ -89,12 +88,12 @@ public class User {
         this.password = password;
     }
 
-    public Integer getAge() {
-        return age;
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
     }
 
-    public void setAge(Integer age) {
-        this.age = age;
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
     public String getProfileUrl() {
