@@ -21,6 +21,7 @@ const LoginPage: NextPage = () => {
   });
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
 
@@ -40,6 +41,7 @@ const LoginPage: NextPage = () => {
     try {
       await api.login(credentials);
       login();
+      setSuccessMessage(true);
       setTimeout(() => {
         router.push("/");
       }, 1000);
@@ -63,6 +65,11 @@ const LoginPage: NextPage = () => {
         />
         <link rel="icon" href="/rounded-logo.png" />
       </Head>
+      {successMessage && (
+        <div className="fixed top-4 right-4 p-3 text-white bg-green-500 rounded-lg shadow-lg transition-opacity duration-200 animate-fade-out">
+          Logged in successfully!
+        </div>
+      )}
 
       <div className="min-h-screen bg-gray-900 flex justify-center p-4 md:items-center">
         <div className="w-full max-w-md space-y-6 mt-8 md:mt-0">
