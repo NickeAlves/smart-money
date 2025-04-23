@@ -498,8 +498,8 @@ export default function UpdateProfile() {
                 disabled={uploading}
                 className={`px-6 py-2 text-white rounded-md transition-colors ${
                   uploading
-                    ? "bg-indigo-400 cursor-not-allowed"
-                    : "bg-[var(--color-button)] hover:bg-gray-800"
+                    ? "bg-green-600 cursor-not-allowed"
+                    : "bg-green-600 hover:bg-green-500"
                 }`}
               >
                 {uploading ? "Saving..." : "Save Changes"}
