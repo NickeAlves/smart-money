@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
-import "./../styles/globals.css";
+import "../../styles/globals.css";
 import api from "@/integrations/java-api";
 import { useAuth } from "@/context/AuthContext";
 

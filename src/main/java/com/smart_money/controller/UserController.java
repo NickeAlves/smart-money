@@ -1,17 +1,16 @@
 package com.smart_money.controller;
 
+import com.smart_money.dto.request.user.UpdateUserDTO;
 import com.smart_money.dto.request.user.VerifyPasswordDTO;
 import com.smart_money.dto.response.user.CurrentUserDTO;
 import com.smart_money.dto.response.user.ResponseUserDTO;
-import com.smart_money.dto.request.user.UpdateUserDTO;
 import com.smart_money.model.User;
 import com.smart_money.security.TokenService;
 import com.smart_money.service.UserService;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -137,7 +136,7 @@ public class UserController {
         cookie = new Cookie("auth_token", token);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-        cookie.setMaxAge(86400); // 1 dia
+        cookie.setMaxAge(86400);
         response.addCookie(cookie);
 
         return ResponseEntity.ok(new ResponseUserDTO<>(true, token, "User updated successfully. New token generated."));

@@ -1,11 +1,10 @@
 "use client";
 
 import Head from "next/head";
-import api from "../integrations/java-api.js";
+import api from "../../integrations/java-api.js";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-
-import "./../styles/globals.css";
+import "../../styles/globals.css";
 
 interface UserData {
   id: string;

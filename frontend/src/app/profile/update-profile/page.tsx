@@ -1,8 +1,8 @@
 "use client";
 
-import "./../../styles/globals.css";
+import "../../../styles/globals.css";
 import Head from "next/head";
-import api from "../../integrations/java-api.js";
+import api from "../../../integrations/java-api.js";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";

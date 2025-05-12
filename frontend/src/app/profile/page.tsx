@@ -1,8 +1,8 @@
 "use client";
 
 import Head from "next/head";
-import "./../styles/globals.css";
-import api from "../integrations/java-api.js";
+import "../../styles/globals.css";
+import api from "../../integrations/java-api.js";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
